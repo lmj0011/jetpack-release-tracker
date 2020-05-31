@@ -1,25 +1,46 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'androidx.navigation.safeargs'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
+    // get the first 8 chars of the latest git commit, and use it as the version build name
+    def appBuildPrefix =  ['sh', '-c', 'git rev-parse --short=8 HEAD'].execute().text.trim()
+
     defaultConfig {
-        applicationId "name.lmj0011.bottomnavtinkering"
+        applicationId "name.lmj0011.jetpackreleasetracker"
         minSdkVersion 19
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "0.1.0"
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // ref: https://stackoverflow.com/a/48674264/2445763
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas".toString())
+            }
+        }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            resValue("bool", "DEBUG_MODE", "false")
+            resValue("string", "app_build", appBuildPrefix)
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            resValue("bool", "DEBUG_MODE", "true")
+            resValue("string", "app_build", appBuildPrefix)
+            minifyEnabled false
         }
     }
 
@@ -28,11 +49,18 @@ android {
 
 
     compileOptions {
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+
+    dataBinding {
+        enabled = true
     }
 
 }
@@ -45,12 +73,38 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.vectordrawable:vectordrawable:1.0.1'
-    implementation 'androidx.navigation:navigation-fragment:2.2.2'
-    implementation 'androidx.navigation:navigation-ui:2.2.2'
-    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.2.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.2.2'
+    implementation "androidx.navigation:navigation-fragment:$fragment_version"
+    implementation "androidx.navigation:navigation-fragment-ktx:$fragment_version"
+    implementation "androidx.navigation:navigation-ui:$nav_version"
+    implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // Room dependencies
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    // Lifecycle-aware components
+    // ref: https://developer.android.com/jetpack/androidx/releases/lifecycle
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$version_coroutine"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$version_coroutine"
+
+    // androidx.preference
+    implementation "androidx.preference:preference-ktx:1.1.1"
+
+    // WorkManager
+    def work_version = "2.3.4"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
+
+    // https://developer.android.com/studio/write/java8-support?utm_source=android-studio-4-0&utm_medium=studio-assistant-stable#library-desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.5'
+
+    // other 3rd party libs
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+    implementation 'com.vdurmont:semver4j:3.1.0'
 }

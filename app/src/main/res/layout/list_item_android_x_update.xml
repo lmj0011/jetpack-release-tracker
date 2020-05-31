@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable name="update" type="name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate"/>
+        <variable name="clickListener" type="name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXArtifactUpdateListAdapter.AndroidXArtifactUpdateListener"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/listItemAndroidXUpdateConstraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> clickListener.onClick(update)}"
+        android:padding="@dimen/default_list_item_padding">
+
+        <TextView
+            android:id="@+id/packageNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/starImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="androidx.foo:bar" />
+
+        <TextView
+            android:id="@+id/versionUpdateTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/packageNameTextView"
+            tools:text="1.0.0 -> 1.0.3" />
+
+        <ImageView
+            android:id="@+id/starImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_star_yellow_24dp"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/default_list_item_padding"
+            android:paddingEnd="@dimen/default_list_item_padding"
+            android:paddingBottom="@dimen/default_list_item_padding"
+            android:textSize="14sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/versionUpdateTextView"
+            tools:text="May 18, 2020" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

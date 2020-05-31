@@ -3,23 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@+id/navigation_libraries">
 
     <fragment
-        android:id="@+id/navigation_home"
-        android:name="name.lmj0011.bottomnavtinkering.ui.home.HomeFragment"
-        android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        android:id="@+id/navigation_libraries"
+        android:name="name.lmj0011.jetpackreleasetracker.ui.libraries.LibrariesFragment"
+        android:label="@string/title_libraries"
+        tools:layout="@layout/fragment_libraries" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="name.lmj0011.bottomnavtinkering.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_updates"
+        android:name="name.lmj0011.jetpackreleasetracker.ui.updates.UpdatesFragment"
+        android:label="@string/title_updates"
+        tools:layout="@layout/fragment_updates" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="name.lmj0011.bottomnavtinkering.ui.notifications.NotificationsFragment"
+        android:name="name.lmj0011.jetpackreleasetracker.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 </navigation>

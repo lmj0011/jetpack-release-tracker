@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable name="library" type="name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibrary"/>
+        <variable name="clickListener" type="name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXLibraryListAdapter.AndroidXLibraryListener"/>
+        <variable name="starClickListener" type="name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXLibraryListAdapter.AndroidXLibraryStarListener"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/listItemLibraryConstraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/default_list_item_padding">
+
+
+        <TextView
+            android:id="@+id/packageNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            app:layout_constraintStart_toEndOf="@+id/starImageView"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="androidx.activity" />
+
+        <ImageView
+            android:id="@+id/starImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_star_border_black_24dp"
+            android:onClick="@{() -> starClickListener.onClick(library)}"/>
+
+        <TextView
+            android:id="@+id/stableVersionTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/list_header_latest_stable"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/rightVerticalGuideline"
+            app:layout_constraintHorizontal_bias="0.493"
+            app:layout_constraintStart_toStartOf="@+id/leftVerticalGuideline"
+            app:layout_constraintTop_toTopOf="@+id/headerHorizontalGuideline" />
+
+        <TextView
+            android:id="@+id/latestReleaseTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/list_header_latest_release"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/rightVerticalGuideline"
+            app:layout_constraintTop_toTopOf="@+id/headerHorizontalGuideline" />
+
+        <TextView
+            android:id="@+id/artifactTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/list_header_artifact"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/leftVerticalGuideline"
+            app:layout_constraintHorizontal_bias="0.544"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/headerHorizontalGuideline" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/leftVerticalGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="200dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/rightVerticalGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_end="100dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/headerHorizontalGuideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_begin="25dp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="name.lmj0011.bottomnavtinkering">
+    package="name.lmj0011.jetpackreleasetracker">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name="name.lmj0011.jetpackreleasetracker.Application"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -10,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="name.lmj0011.jetpackreleasetracker.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
