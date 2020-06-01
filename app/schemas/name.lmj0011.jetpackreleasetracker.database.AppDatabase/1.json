@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6e9a2dd7d48f029cdda155484cce4d37",
+    "identityHash": "82d26c0fb7c752c5ef1109af96e64ee5",
     "entities": [
       {
         "tableName": "artifacts_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL, `name` TEXT NOT NULL, `packageName` TEXT NOT NULL, `releasePageUrl` TEXT NOT NULL, `latestStableVersion` TEXT, `latestVersion` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL, `name` TEXT NOT NULL, `packageName` TEXT NOT NULL, `releasePageUrl` TEXT NOT NULL, `latestStableVersion` TEXT NOT NULL, `latestVersion` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -48,13 +48,13 @@
             "fieldPath": "latestStableVersion",
             "columnName": "latestStableVersion",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "latestVersion",
             "columnName": "latestVersion",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -68,7 +68,7 @@
       },
       {
         "tableName": "artifact_update_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL, `name` TEXT NOT NULL, `packageName` TEXT NOT NULL, `releasePageUrl` TEXT NOT NULL, `previousVersion` TEXT, `latestVersion` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL, `name` TEXT NOT NULL, `packageName` TEXT NOT NULL, `releasePageUrl` TEXT NOT NULL, `previousVersion` TEXT NOT NULL, `latestVersion` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -110,13 +110,13 @@
             "fieldPath": "previousVersion",
             "columnName": "previousVersion",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           },
           {
             "fieldPath": "latestVersion",
             "columnName": "latestVersion",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -132,7 +132,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6e9a2dd7d48f029cdda155484cce4d37')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '82d26c0fb7c752c5ef1109af96e64ee5')"
     ]
   }
 }

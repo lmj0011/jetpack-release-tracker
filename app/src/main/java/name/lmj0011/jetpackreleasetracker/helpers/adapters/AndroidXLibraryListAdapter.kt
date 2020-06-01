@@ -20,6 +20,7 @@ import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.databinding.ListItemLibraryBinding
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibrary
+import timber.log.Timber
 
 class AndroidXLibraryListAdapter(
     private val clickListener: AndroidXLibraryListener,
@@ -102,7 +103,9 @@ class AndroidXLibraryListAdapter(
 
                 view.id = View.generateViewId()
                 view.text = "-"
-                it.latestStableVersion?.let{ str -> view.text = str }
+                if (it.latestStableVersion.isNotBlank()) {
+                    view.text = it.latestStableVersion
+                }
                 view.maxEms = 8
                 view.isSingleLine = true
                 view.movementMethod = ScrollingMovementMethod()
@@ -120,7 +123,9 @@ class AndroidXLibraryListAdapter(
 
                 view.id = View.generateViewId()
                 view.text = "-"
-                it.latestVersion?.let{ str -> view.text = str }
+                if (it.latestVersion.isNotBlank()) {
+                    view.text = it.latestVersion
+                }
                 view.maxEms = 8
                 view.isSingleLine = true
                 view.movementMethod = ScrollingMovementMethod()
@@ -176,5 +181,25 @@ class AndroidXLibraryListAdapter(
 
     fun  submitLibArtifacts(artifacts: List<AndroidXArtifact>) {
         libArtifacts = artifacts
+    }
+
+    fun filterBySearchQuery(query: String?, list: MutableList<AndroidXLibrary>): MutableList<AndroidXLibrary> {
+        if (query.isNullOrBlank()) return list
+
+        return list.filter {
+            val inPackageName = it.packageName.contains(query, true)
+            val inArtifact = it.artifactNames.any { name ->
+                val artifact = libArtifacts.find { artifact -> artifact.name == "${it.packageName}:${name}" }
+
+                if (artifact == null) {
+                    false
+                } else {
+                    artifact.name.contains(query, true) ||
+                    artifact.latestStableVersion.contains(query, true) ||
+                    artifact.latestVersion.contains(query, true)
+                }
+            }
+            return@filter inPackageName || inArtifact
+        }.toMutableList()
     }
 }

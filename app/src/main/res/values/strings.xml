@@ -6,7 +6,7 @@
     <string name="list_header_artifact">Artifact</string>
     <string name="list_header_latest_stable">Stable</string>
     <string name="list_header_latest_release">Latest</string>
-    <string name="no_updates_text">New AndroidX Releases will show up here</string>
+    <string name="no_updates_text">New AndroidX releases will show up here</string>
 
     <!-- Shared Preference Keys-->
     <string name="pref_key_starred_libraries">PREF_STARRED_LIBRARIES</string>

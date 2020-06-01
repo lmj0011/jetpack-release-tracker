@@ -27,8 +27,8 @@ data class AndroidXArtifactUpdate (
     var releasePageUrl: String = "",
 
     @ColumnInfo(name = "previousVersion")
-    var previousVersion: String? = "",
+    var previousVersion: String = "",
 
     @ColumnInfo(name = "latestVersion")
-    var latestVersion: String? = ""
+    var latestVersion: String = ""
 ) : BaseEntity()

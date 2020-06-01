@@ -15,6 +15,19 @@
         android:layout_height="match_parent"
         tools:context=".ui.libraries.LibrariesFragment">
 
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/librariesSearchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:visibility="gone"
+            app:iconifiedByDefault="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/androidXLibraryList"
             android:layout_width="0dp"
@@ -23,7 +36,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/librariesSearchView" />
 
         <Button
             android:id="@+id/testButton"

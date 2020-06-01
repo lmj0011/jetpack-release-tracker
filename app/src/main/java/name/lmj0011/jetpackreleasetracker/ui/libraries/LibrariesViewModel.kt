@@ -43,7 +43,7 @@ class LibrariesViewModel(
                 val list = fetchArtifacts()
                 val artifactsToInsert = mutableListOf<AndroidXArtifact>()
                 val artifactsToUpdate = mutableListOf<AndroidXArtifact>()
-                val newArtifactVersionsToNotify = mutableListOf<String>()
+                val newArtifactVersionsToNotifySet = mutableSetOf<String>()
 
                 when(list.size) {
                     0 -> {
@@ -57,12 +57,12 @@ class LibrariesViewModel(
                                 (upKey == localKey)
                             }.apply {
                                 if (this != null){
+                                    if(this@LibrariesViewModel.artifactHasNewerVersion(this, upstreamArtifact)){
+                                        newArtifactVersionsToNotifySet.add("${this.packageName} ${upstreamArtifact.latestVersion}")
+                                    }
+
                                     this.latestStableVersion = upstreamArtifact.latestStableVersion
                                     this.latestVersion = upstreamArtifact.latestVersion
-
-                                    if(this@LibrariesViewModel.artifactHasNewerVersion(this, upstreamArtifact)){
-                                        newArtifactVersionsToNotify.add("${this.name}:${upstreamArtifact.latestVersion}")
-                                    }
                                 }
                             }
 
@@ -79,7 +79,7 @@ class LibrariesViewModel(
                 if(artifactsToInsert.size > 0) { database.insertAll(artifactsToInsert) }
                 if(artifactsToUpdate.size > 0) { database.updateAll(artifactsToUpdate) }
 
-                if (notify && appContext is Context && newArtifactVersionsToNotify.size > 0) {
+                if (notify && appContext is Context && newArtifactVersionsToNotifySet.size > 0) {
                     val notificationContentIntent = Intent(appContext, MainActivity::class.java).apply {
                         putExtra("menuItemId", R.id.navigation_updates)
                     }
@@ -90,7 +90,7 @@ class LibrariesViewModel(
                         .setContentTitle("New Versions Available!")
                         .setContentIntent(contentPendingIntent)
                         .setStyle(NotificationCompat.BigTextStyle().bigText(
-                            newArtifactVersionsToNotify.joinToString("") { n -> "$n\n" })
+                            newArtifactVersionsToNotifySet.joinToString("") { n -> "$n\n" })
                         )
                         .setSmallIcon(R.drawable.ic_new_releases_outline_24dp)
                         .setOnlyAlertOnce(true)
@@ -148,8 +148,8 @@ class LibrariesViewModel(
                             name = key
                             packageName = it.packageName
                             releasePageUrl = it.releasePageUrl
-                            latestStableVersion = m["latestStableVersion"]
-                            latestVersion = m["latestVersion"]
+                            latestStableVersion = m["latestStableVersion"].toString()
+                            latestVersion = m["latestVersion"].toString()
                         }
                         mList.add(artifact)
                     }

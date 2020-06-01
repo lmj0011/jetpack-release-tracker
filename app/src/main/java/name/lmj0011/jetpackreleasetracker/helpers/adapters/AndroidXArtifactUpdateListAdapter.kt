@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.databinding.ListItemAndroidXUpdateBinding
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate
+import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibrary
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -38,7 +39,7 @@ class AndroidXArtifactUpdateListAdapter(private val clickListener: AndroidXArtif
 
 
             LocalDateTime.parse(update.createdAt, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            binding.packageNameTextView.text = "${update.name}:${update.latestVersion}"
+            binding.packageNameTextView.text = "${update.name}"
             binding.versionUpdateTextView.text = "${update.previousVersion} -> ${update.latestVersion}"
 
             if(starredSet.contains(update.packageName)){
@@ -94,5 +95,18 @@ class AndroidXArtifactUpdateListAdapter(private val clickListener: AndroidXArtif
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
+    }
+
+    fun filterBySearchQuery(query: String?, list: MutableList<AndroidXArtifactUpdate>): MutableList<AndroidXArtifactUpdate> {
+        if (query.isNullOrBlank()) return list
+
+        return list.filter {
+            val inName = it.name.contains(query, true)
+            val inPackageName = it.packageName.contains(query, true)
+            val inPreviousVersion = it.previousVersion.contains(query, true)
+            val inLatestVersion = it.latestVersion.contains(query, true)
+
+            return@filter inName || inPackageName || inPreviousVersion || inLatestVersion
+        }.toMutableList()
     }
 }

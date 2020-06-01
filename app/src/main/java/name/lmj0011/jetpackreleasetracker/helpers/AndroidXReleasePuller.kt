@@ -31,7 +31,7 @@ class AndroidXReleasePuller {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parse(inputStream: InputStream): MutableMap<String, Map<String?,String?>> {
+    fun parse(inputStream: InputStream): MutableMap<String, Map<String,String>> {
         inputStream.use { inputStream ->
             val parser: XmlPullParser = Xml.newPullParser()
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
@@ -42,8 +42,8 @@ class AndroidXReleasePuller {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readFeed(parser: XmlPullParser): MutableMap<String, Map<String?,String?>> {
-        var allArtifactsMap = mutableMapOf<String, Map<String?,String?>>() //sorry. :(
+    private fun readFeed(parser: XmlPullParser): MutableMap<String, Map<String,String>> {
+        var allArtifactsMap = mutableMapOf<String, Map<String,String>>() //sorry. :(
 
         parser.require(XmlPullParser.START_TAG, ns, xLibrary.packageName)
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -66,7 +66,7 @@ class AndroidXReleasePuller {
     }
 
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readArtifact(parser: XmlPullParser): Map<String?, String?> {
+    private fun readArtifact(parser: XmlPullParser): Map<String, String> {
         parser.require(XmlPullParser.START_TAG, ns, parser.name)
 
         var versions = parser.getAttributeValue(null, "versions").split(',').toTypedArray()
@@ -90,7 +90,7 @@ class AndroidXReleasePuller {
     }
 
     // returns a Map of the latest version and "Stable" version
-    private fun sortVersions(versions: Array<String>): Map<String?, String?> {
+    private fun sortVersions(versions: Array<String>): Map<String, String> {
         val stableVersions = versions.filter {
             Semver(it, SemverType.LOOSE).isStable
         }.toTypedArray()
@@ -113,15 +113,26 @@ class AndroidXReleasePuller {
           }
         })
 
+        var latestStableVersion = ""
+        var latestVersion = ""
+
+        stableVersions.lastOrNull()?.apply {
+            latestStableVersion = this
+        }
+
+        allVersions.lastOrNull()?.apply {
+            latestVersion = this
+        }
+
         return mapOf(
-            "latestStableVersion" to stableVersions.lastOrNull(),
-            "latestVersion" to allVersions.lastOrNull()
+            "latestStableVersion" to latestStableVersion,
+            "latestVersion" to latestVersion
         )
     }
 
     // parse the xml feed
     @Throws(XmlPullParserException::class, IOException::class)
-    fun parseFeed(lib: AndroidXLibrary): MutableMap<String, Map<String?,String?>>? {
+    fun parseFeed(lib: AndroidXLibrary): MutableMap<String, Map<String,String>>? {
         xLibrary = lib
 
         return downloadUrl(xLibrary.groupIndexUrl)?.use { stream ->

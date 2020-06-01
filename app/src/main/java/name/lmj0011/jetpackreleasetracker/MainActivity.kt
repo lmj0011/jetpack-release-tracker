@@ -1,7 +1,10 @@
 package name.lmj0011.jetpackreleasetracker
 
+import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +44,16 @@ class MainActivity : AppCompatActivity() {
         val toast = Toast.makeText(this, message, duration)
         toast.setGravity(Gravity.TOP, 0, 150)
         toast.show()
+    }
+
+    fun showKeyBoard(v: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    fun hideKeyBoard(v: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(v.windowToken, 0)
     }
 
     private fun navigateTo(id: Int) {
