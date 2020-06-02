@@ -202,4 +202,12 @@ class AndroidXLibraryListAdapter(
             return@filter inPackageName || inArtifact
         }.toMutableList()
     }
+
+    fun filterByStarred(context: Context, list: List<AndroidXLibrary>): List<AndroidXLibrary> {
+        val starredSet = ViewHolder.getStarredSet(context).toMutableSet()
+
+        return list.filter {
+            starredSet.contains(it.packageName)
+        }.toMutableList()
+    }
 }

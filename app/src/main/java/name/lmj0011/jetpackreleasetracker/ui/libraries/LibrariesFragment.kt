@@ -11,11 +11,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
-import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.databinding.FragmentLibrariesBinding
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibrary
@@ -33,6 +33,7 @@ class LibrariesFragment : Fragment(),
     private lateinit var mainActivity: MainActivity
     private lateinit var librariesViewModel: LibrariesViewModel
     private lateinit var listAdapter: AndroidXLibraryListAdapter
+    private lateinit var filterMenuItem: MenuItem
     private var fragmentJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main +  fragmentJob)
 
@@ -67,7 +68,7 @@ class LibrariesFragment : Fragment(),
                 spf.edit{
                     putStringSet(mainActivity.getString(R.string.pref_key_starred_libraries), starredSet)
                     apply()
-                    listAdapter.notifyDataSetChanged()
+                    this@LibrariesFragment.refreshListAdapter()
                 }
             }
         )
@@ -94,8 +95,7 @@ class LibrariesFragment : Fragment(),
 
         librariesViewModel.artifacts.observe(viewLifecycleOwner, Observer {
             listAdapter.submitLibArtifacts(it.toList())
-            listAdapter.submitList(AndroidXLibraryDataset.data)
-            listAdapter.notifyDataSetChanged()
+            refreshListAdapter()
         })
 
         binding.librariesSearchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
@@ -104,17 +104,7 @@ class LibrariesFragment : Fragment(),
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                var list = AndroidXLibraryDataset.data.toMutableList()
-
-                list?.let {
-                    uiScope.launch {
-                        val filteredList = withContext(Dispatchers.Default) {
-                            listAdapter.filterBySearchQuery(newText, it)
-                        }
-
-                        this@LibrariesFragment.submitListToAdapter(filteredList)
-                    }
-                }
+                this@LibrariesFragment.refreshListAdapter(newText)
                 return false
             }
         })
@@ -146,14 +136,42 @@ class LibrariesFragment : Fragment(),
         fragmentJob?.cancel()
     }
 
-    private fun submitListToAdapter (list: MutableList<AndroidXLibrary>) {
-        listAdapter.submitList(list)
-        listAdapter.notifyDataSetChanged()
+    private fun refreshListAdapter (query: String? = null) {
+        val spf = PreferenceManager.getDefaultSharedPreferences(mainActivity)
+        val hasStarredFilter = spf.getBoolean(mainActivity.getString(R.string.pref_key_starred_filter), false)
+        var list = AndroidXLibraryDataset.data.toMutableList()
+
+        uiScope.launch {
+            if (hasStarredFilter) {
+                list = listAdapter.filterByStarred(mainActivity, list).toMutableList()
+            }
+
+            query?.let { str ->
+               list = withContext(Dispatchers.Default) {
+                    listAdapter.filterBySearchQuery(str, list)
+                }
+            }
+
+            listAdapter.submitList(list)
+            listAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.libraries_menu, menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+
+        val spf = PreferenceManager.getDefaultSharedPreferences(mainActivity)
+        filterMenuItem = menu.findItem(R.id.action_libraries_filter)
+        val hasStarredFilter = spf.getBoolean(mainActivity.getString(R.string.pref_key_starred_filter), false)
+
+        if (hasStarredFilter) {
+            filterMenuItem.setIcon(R.drawable.ic_baseline_selected_filter_list_24)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -163,6 +181,29 @@ class LibrariesFragment : Fragment(),
         return when (item.itemId) {
             R.id.action_libraries_search -> {
                 this@LibrariesFragment.toggleSearch(mainActivity, binding.librariesSearchView, true)
+                true
+            }
+            R.id.action_libraries_filter -> {
+                val spf = PreferenceManager.getDefaultSharedPreferences(mainActivity)
+                val hasStarredFilter = spf.getBoolean(mainActivity.getString(R.string.pref_key_starred_filter), false)
+                var checkedItem = -1
+                if (hasStarredFilter) checkedItem = 0
+
+                MaterialAlertDialogBuilder(mainActivity)
+                    .setTitle("Filter By")
+                    .setSingleChoiceItems(arrayOf("Starred"), checkedItem) { dialog, which ->
+                        // Respond to item chosen
+                        if (hasStarredFilter) {
+                            spf.edit().putBoolean(mainActivity.getString(R.string.pref_key_starred_filter), false).commit()
+                            filterMenuItem.setIcon(R.drawable.ic_baseline_filter_list_24)
+                        } else {
+                            spf.edit().putBoolean(mainActivity.getString(R.string.pref_key_starred_filter), true).commit()
+                            filterMenuItem.setIcon(R.drawable.ic_baseline_selected_filter_list_24)
+                        }
+                        this@LibrariesFragment.refreshListAdapter()
+                        dialog.dismiss()
+                    }
+                    .show()
                 true
             }
             else -> super.onOptionsItemSelected(item)

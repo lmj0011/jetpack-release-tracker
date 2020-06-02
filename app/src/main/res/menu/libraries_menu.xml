@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_baseline_search_24"
         android:orderInCategory="100"
         app:showAsAction="always"/>
+    <item android:id="@+id/action_libraries_filter"
+        android:title="Filter"
+        android:icon="@drawable/ic_baseline_filter_list_24"
+        android:orderInCategory="101"
+        app:showAsAction="always"/>
 </menu>
