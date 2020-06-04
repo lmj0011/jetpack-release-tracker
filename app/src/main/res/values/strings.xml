@@ -7,6 +7,7 @@
     <string name="list_header_latest_stable">Stable</string>
     <string name="list_header_latest_release">Latest</string>
     <string name="no_updates_text">New AndroidX releases will show up here</string>
+    <string name="jetpack_release_archive_url">https://developer.android.com/jetpack/androidx/versions/all-channel</string>
 
     <!-- Shared Preference Keys-->
     <string name="pref_key_starred_libraries">PREF_STARRED_LIBRARIES</string>
@@ -14,4 +15,5 @@
 
     <!--  Unique Worker Tags/Names  -->
     <string name="update_periodic_worker">UPDATE_PERIODIC_WORKER</string>
+    <string name="github_repo_url">https://github.com/lmj0011/jetpack-release-tracker</string>
 </resources>

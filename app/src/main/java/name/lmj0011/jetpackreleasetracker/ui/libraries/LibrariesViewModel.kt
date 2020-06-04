@@ -163,36 +163,36 @@ class LibrariesViewModel(
     // TODO remove
     // DB needs to be populated with the following artifacts for this to work
     fun testNewerVersion() {
-        val artifact1 = artifacts.value?.find {
-            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity"))
-        }.apply {
-            this?.latestVersion = "1.0.0"
-        }
-
-        val artifact2 = artifacts.value?.find {
-            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity-ktx"))
-        }.apply {
-            this?.latestVersion = "1.0.0"
-        }
-
-        val artifact3 = artifacts.value?.find {
-            ((it.packageName == "androidx.compose") && (it.name == "androidx.compose:compose-compiler"))
-        }.apply {
-            this?.latestVersion = "0.1.0-dev04"
-        }
-
-        val artifact4 = artifacts.value?.find {
-            ((it.packageName == "androidx.core") && (it.name == "androidx.core:core"))
-        }.apply {
-            this?.latestVersion = "1.0.0"
-        }
-
-
-        uiScope.launch {
-            val list = mutableListOf(artifact1!!, artifact2!!, artifact3!!, artifact4!!)
-            withContext(Dispatchers.IO) {
-                database.updateAll(list)
-            }
-        }
+//        val artifact1 = artifacts.value?.find {
+//            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity"))
+//        }.apply {
+//            this?.latestVersion = "1.0.0"
+//        }
+//
+//        val artifact2 = artifacts.value?.find {
+//            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity-ktx"))
+//        }.apply {
+//            this?.latestVersion = "1.0.0"
+//        }
+//
+//        val artifact3 = artifacts.value?.find {
+//            ((it.packageName == "androidx.compose") && (it.name == "androidx.compose:compose-compiler"))
+//        }.apply {
+//            this?.latestVersion = "0.1.0-dev04"
+//        }
+//
+//        val artifact4 = artifacts.value?.find {
+//            ((it.packageName == "androidx.core") && (it.name == "androidx.core:core"))
+//        }.apply {
+//            this?.latestVersion = "1.0.0"
+//        }
+//
+//
+//        uiScope.launch {
+//            val list = mutableListOf(artifact1!!, artifact2!!, artifact3!!, artifact4!!)
+//            withContext(Dispatchers.IO) {
+//                database.updateAll(list)
+//            }
+//        }
     }
 }

@@ -2,8 +2,7 @@ package name.lmj0011.jetpackreleasetracker
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Gravity
-import android.view.View
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -13,6 +12,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.NavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.android.synthetic.main.dialog_about.view.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
@@ -36,6 +37,30 @@ class MainActivity : AppCompatActivity() {
 
         intent.extras?.getInt("menuItemId")?.let {
             navigateTo(it)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null)
+        v.versionTextView.text = "${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)})"
+
+        return when (item.itemId) {
+            R.id.action_main_about -> {
+                MaterialAlertDialogBuilder(this)
+                    .setView(v)
+                    .show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

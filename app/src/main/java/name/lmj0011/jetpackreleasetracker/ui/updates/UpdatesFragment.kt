@@ -21,6 +21,7 @@ import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.databinding.FragmentUpdatesBinding
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibrary
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
+import name.lmj0011.jetpackreleasetracker.helpers.Util
 import name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXArtifactUpdateListAdapter
 import name.lmj0011.jetpackreleasetracker.helpers.factories.DashBoardViewModelFactory
 import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
@@ -52,11 +53,7 @@ class UpdatesFragment : Fragment(),
 
         listAdapter = AndroidXArtifactUpdateListAdapter(AndroidXArtifactUpdateListAdapter.AndroidXArtifactUpdateListener {
             if(!it.releasePageUrl.isNullOrBlank()) {
-                val webpage: Uri = Uri.parse(it.releasePageUrl)
-                val intent = Intent(Intent.ACTION_VIEW, webpage)
-                if (intent.resolveActivity(mainActivity.packageManager) != null) {
-                    startActivity(intent)
-                }
+                Util.openUrlInWebBrowser(mainActivity, it.releasePageUrl)
             }
 
         })
@@ -136,6 +133,10 @@ class UpdatesFragment : Fragment(),
         return when (item.itemId) {
             R.id.action_updates_search -> {
                 this@UpdatesFragment.toggleSearch(mainActivity, binding.updatesSearchView, true)
+                true
+            }
+            R.id.action_updates_archive -> {
+                Util.openUrlInWebBrowser(mainActivity, getString(R.string.jetpack_release_archive_url))
                 true
             }
             else -> super.onOptionsItemSelected(item)
