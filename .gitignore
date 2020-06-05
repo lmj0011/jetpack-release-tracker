@@ -11,5 +11,7 @@ gradle.properties
 .DS_Store
 /build
 /captures
+/app/release
+/app/debug
 .externalNativeBuild
 .cxx

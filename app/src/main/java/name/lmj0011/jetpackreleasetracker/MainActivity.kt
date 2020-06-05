@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null)
-        v.versionTextView.text = "${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)})"
+        v.versionTextView.text = "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)})"
 
         return when (item.itemId) {
             R.id.action_main_about -> {
