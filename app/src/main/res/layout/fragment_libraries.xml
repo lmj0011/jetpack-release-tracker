@@ -20,6 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
+            android:theme="@style/Widget.SearchView"
             android:visibility="gone"
             app:iconifiedByDefault="true"
             app:layout_constraintEnd_toEndOf="parent"
