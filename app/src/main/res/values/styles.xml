@@ -10,11 +10,11 @@
     
     <style name="Widget.SearchView" parent="Widget.AppCompat.SearchView">
         <!-- Text color -->
-        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorPrimary">@color/colorDefaultText</item>
         <!-- Hint (search icon) color -->
-        <item name="android:textColorSecondary">@color/white</item>
+        <item name="android:textColorSecondary">@color/colorDefaultText</item>
         <!-- Icon color -->
-        <item name="android:tint">@color/white</item>
+        <item name="android:tint">@color/colorDefaultText</item>
     </style>
 
 </resources>
