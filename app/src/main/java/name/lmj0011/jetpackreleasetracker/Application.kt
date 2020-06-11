@@ -22,7 +22,8 @@ class Application: android.app.Application() {
             .setInitialDelay(5, TimeUnit.MINUTES)
             .build()
 
-//        workManager.cancelUniqueWork(applicationContext.getString(R.string.update_periodic_worker))
+        // this keeps the worker fresh
+        workManager.cancelUniqueWork(applicationContext.getString(R.string.update_periodic_worker))
         workManager.enqueueUniquePeriodicWork(applicationContext.getString(R.string.update_periodic_worker), ExistingPeriodicWorkPolicy.KEEP, updateWorkRequest)
     }
 }
