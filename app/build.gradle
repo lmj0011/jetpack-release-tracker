@@ -66,6 +66,24 @@ android {
         enabled = true
     }
 
+    // Big Up! to cSn: https://stackoverflow.com/a/36626584/2445763
+    task generateDependencyListFile {
+        configurations.implementation.setCanBeResolved(true)
+
+        doLast {
+            def str = "# auto-generated from ${this.name}; this file should be checked into version control\n"
+            def resolvedConfig = configurations.implementation.resolvedConfiguration
+
+            resolvedConfig.firstLevelModuleDependencies.each { dep ->
+                str += "${dep.moduleGroup}:${dep.moduleName}:${dep.moduleVersion}\n"
+            }
+
+            new File(projectDir, "deps.list.txt").text = str
+        }
+    }
+
+    preBuild.dependsOn(generateDependencyListFile)
+    /////
 }
 
 dependencies {
@@ -114,4 +132,7 @@ dependencies {
     // other 3rd party libs
     implementation 'com.jakewharton.timber:timber:4.7.1'
     implementation 'com.vdurmont:semver4j:3.1.0'
+    implementation 'br.com.simplepass:loading-button-android:2.2.0'
 }
+
+
