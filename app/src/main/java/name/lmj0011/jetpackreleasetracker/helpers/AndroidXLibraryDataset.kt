@@ -498,6 +498,39 @@ object AndroidXLibraryDataset {
                 "work-gcm", "work-runtime", "work-runtime-ktx",
                 "work-rxjava2", "work-rxjava3", "work-testing"
             )
+        ),
+        AndroidXLibrary(
+            "https://dl.google.com/dl/android/maven2/androidx/startup/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/startup",
+            "androidx.startup",
+            listOf(
+                "startup-runtime"
+            )
+        ),
+        AndroidXLibrary(
+            "https://dl.google.com/dl/android/maven2/androidx/hilt/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/hilt",
+            "androidx.hilt",
+            listOf(
+                "hilt-common", "hilt-compiler", "hilt-lifecycle-viewmodel",
+                "hilt-work"
+            )
+        ),
+        AndroidXLibrary(
+            "https://dl.google.com/dl/android/maven2/androidx/gaming/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/gaming",
+            "androidx.gaming",
+            listOf(
+                "gaming-frame-pacing", "gaming-performance-tuner"
+            )
+        ),
+        AndroidXLibrary(
+            "https://dl.google.com/dl/android/maven2/androidx/tracing/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/tracing",
+            "androidx.tracing",
+            listOf(
+                "tracing", "tracing-ktx"
+            )
         )
     )
 }

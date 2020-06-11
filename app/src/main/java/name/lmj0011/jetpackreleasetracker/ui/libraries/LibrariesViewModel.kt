@@ -18,6 +18,8 @@ import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXReleasePuller
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
+import timber.log.Timber
+import java.lang.Exception
 
 class LibrariesViewModel(
     val database: AndroidXArtifactDao,
@@ -137,24 +139,30 @@ class LibrariesViewModel(
         val mList = mutableListOf<AndroidXArtifact>()
 
         AndroidXLibraryDataset.data.forEach {
-            val map = arp.parseFeed(it)
+            try {
+                val map = arp.parseFeed(it)
 
-            map?.let { thisMap ->
-                it.artifactNames.forEach { artifactName ->
-                    val key = "${it.packageName}:$artifactName"
+                map?.let { thisMap ->
+                    it.artifactNames.forEach { artifactName ->
+                        val key = "${it.packageName}:$artifactName"
 
-                    thisMap[key]?.let { m ->
-                        val artifact = AndroidXArtifact().apply{
-                            name = key
-                            packageName = it.packageName
-                            releasePageUrl = it.releasePageUrl
-                            latestStableVersion = m["latestStableVersion"].toString()
-                            latestVersion = m["latestVersion"].toString()
+                        thisMap[key]?.let { m ->
+                            val artifact = AndroidXArtifact().apply{
+                                name = key
+                                packageName = it.packageName
+                                releasePageUrl = it.releasePageUrl
+                                latestStableVersion = m["latestStableVersion"].toString()
+                                latestVersion = m["latestVersion"].toString()
+                            }
+                            mList.add(artifact)
                         }
-                        mList.add(artifact)
                     }
                 }
+            } catch(ex: Exception) {
+                Timber.d("Failed to fetch artifacts from ${it.groupIndexUrl}")
+                Timber.e(ex)
             }
+
         }
 
         return mList
