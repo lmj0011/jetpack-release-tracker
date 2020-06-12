@@ -23,7 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `project_syncs_table`" +
                         " (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL,"+
                         "`name` TEXT NOT NULL, `upToDateCount` INTEGER NOT NULL, `outdatedCount` INTEGER NOT NULL,"+
-                        "`depsListUrl` TEXT NOT NULL, `stableVersionsOnly` NUMERIC NOT NULL, `androidxArtifactsIds` TEXT NOT NULL )")
+                        "`depsListUrl` TEXT NOT NULL, `stableVersionsOnly` INTEGER NOT NULL, `androidxArtifactsIds` TEXT NOT NULL )")
             }
         }
 
