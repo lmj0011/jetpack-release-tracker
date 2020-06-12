@@ -11,9 +11,13 @@
         android:icon="@drawable/ic_new_releases_outline_24dp"
         android:title="@string/title_updates" />
 
+    <item
+        android:id="@+id/navigation_project_syncs"
+        android:icon="@drawable/ic_baseline_sync_24"
+        android:title="@string/title_project_syncs" />
+
 <!--    <item-->
 <!--        android:id="@+id/navigation_notifications"-->
 <!--        android:icon="@drawable/ic_notifications_black_24dp"-->
 <!--        android:title="@string/title_notifications" />-->
-
 </menu>

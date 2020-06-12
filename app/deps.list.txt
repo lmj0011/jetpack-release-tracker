@@ -13,6 +13,7 @@ androidx.navigation:navigation-fragment-ktx:2.2.2
 androidx.navigation:navigation-ui:2.2.2
 androidx.navigation:navigation-ui-ktx:2.2.2
 androidx.room:room-runtime:2.2.5
+com.google.code.gson:gson:2.8.6
 androidx.lifecycle:lifecycle-extensions:2.2.0
 androidx.preference:preference-ktx:1.1.1
 androidx.work:work-runtime-ktx:2.3.4

@@ -4,15 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <variable name="update" type="name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate"/>
-        <variable name="clickListener" type="name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXArtifactUpdateListAdapter.AndroidXArtifactUpdateListener"/>
+        <variable name="projectSync" type="name.lmj0011.jetpackreleasetracker.database.ProjectSync"/>
+        <variable name="clickListener" type="name.lmj0011.jetpackreleasetracker.helpers.adapters.ProjectSyncListAdapter.ProjectSyncListener"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/listItemProjectSyncConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="@{() -> clickListener.onClick(update)}"
+        android:onClick="@{() -> clickListener.onClick(projectSync)}"
         android:padding="@dimen/default_list_item_padding">
 
         <TextView
@@ -40,11 +40,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="sync indicator"
-            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_sync_24"
-            tools:visibility="visible" />
+            app:srcCompat="@drawable/ic_baseline_sync_24"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

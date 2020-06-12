@@ -12,8 +12,8 @@ import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
-import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactDao
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
+import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactDao
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXReleasePuller

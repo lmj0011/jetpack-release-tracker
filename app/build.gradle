@@ -107,6 +107,9 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
+    // GSON
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     // Lifecycle-aware components
     // ref: https://developer.android.com/jetpack/androidx/releases/lifecycle
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"

@@ -18,6 +18,12 @@
         tools:layout="@layout/fragment_updates" />
 
     <fragment
+        android:id="@+id/navigation_project_syncs"
+        android:name="name.lmj0011.jetpackreleasetracker.ui.projectsyncs.ProjectSyncsFragment"
+        android:label="@string/title_project_syncs"
+        tools:layout="@layout/fragment_project_syncs" />
+
+    <fragment
         android:id="@+id/navigation_notifications"
         android:name="name.lmj0011.jetpackreleasetracker.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
