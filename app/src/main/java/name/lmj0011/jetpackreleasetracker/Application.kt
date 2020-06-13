@@ -1,8 +1,7 @@
 package name.lmj0011.jetpackreleasetracker
 
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import android.os.Build
+import androidx.work.*
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
 import name.lmj0011.jetpackreleasetracker.helpers.workers.UpdateWorker
 import timber.log.Timber
@@ -18,12 +17,16 @@ class Application: android.app.Application() {
 
     private fun enqueueWorkers() {
         val workManager = WorkManager.getInstance(applicationContext)
-        val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(1, TimeUnit.HOURS)
-            .setInitialDelay(5, TimeUnit.MINUTES)
+
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
 
-        // this keeps the worker fresh
-        workManager.cancelUniqueWork(applicationContext.getString(R.string.update_periodic_worker))
-        workManager.enqueueUniquePeriodicWork(applicationContext.getString(R.string.update_periodic_worker), ExistingPeriodicWorkPolicy.KEEP, updateWorkRequest)
+        val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(15, TimeUnit.MINUTES)
+            .setInitialDelay(2, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+
+        workManager.enqueueUniquePeriodicWork(applicationContext.getString(R.string.update_periodic_worker), ExistingPeriodicWorkPolicy.REPLACE, updateWorkRequest)
     }
 }

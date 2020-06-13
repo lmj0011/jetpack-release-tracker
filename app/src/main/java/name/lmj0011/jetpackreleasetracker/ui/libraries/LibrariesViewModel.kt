@@ -39,8 +39,8 @@ class LibrariesViewModel(
         database.clear()
     }
 
-    fun normalRefresh(appContext: Context? = null, notify: Boolean = false) {
-       uiScope.launch {
+    fun normalRefresh(appContext: Context, notify: Boolean = false): Job {
+       return uiScope.launch {
             withContext(Dispatchers.IO) {
                 val list = fetchArtifacts()
                 val artifactsToInsert = mutableListOf<AndroidXArtifact>()
@@ -60,7 +60,9 @@ class LibrariesViewModel(
                             }.apply {
                                 if (this != null){
                                     if(this@LibrariesViewModel.artifactHasNewerVersion(this, upstreamArtifact)){
-                                        newArtifactVersionsToNotifySet.add("${this.packageName} ${upstreamArtifact.latestVersion}")
+                                        val notifyStr = "${this.packageName} ${upstreamArtifact.latestVersion}"
+                                        newArtifactVersionsToNotifySet.add(notifyStr)
+                                        Timber.d("$notifyStr was added to newArtifactVersionsToNotifySet!")
                                     }
 
                                     this.latestStableVersion = upstreamArtifact.latestStableVersion
@@ -81,33 +83,37 @@ class LibrariesViewModel(
                 if(artifactsToInsert.size > 0) { database.insertAll(artifactsToInsert) }
                 if(artifactsToUpdate.size > 0) { database.updateAll(artifactsToUpdate) }
 
-                if (notify && appContext is Context && newArtifactVersionsToNotifySet.size > 0) {
-                    val notificationContentIntent = Intent(appContext, MainActivity::class.java).apply {
-                        putExtra("menuItemId", R.id.navigation_updates)
-                    }
-                    val contentPendingIntent = PendingIntent.getActivity(appContext, 0, notificationContentIntent, PendingIntent.FLAG_CANCEL_CURRENT)
+                if (notify && newArtifactVersionsToNotifySet.size > 0) {
+                    withContext(Dispatchers.Main) {
+                        val notificationContentIntent = Intent(appContext, MainActivity::class.java).apply {
+                            putExtra("menuItemId", R.id.navigation_updates)
+                        }
+                        val contentPendingIntent = PendingIntent.getActivity(appContext, 0, notificationContentIntent, PendingIntent.FLAG_CANCEL_CURRENT)
 
 
-                    val notification = NotificationCompat.Builder(appContext, NotificationHelper.UPDATES_CHANNEL_ID)
-                        .setContentTitle("New Versions Available!")
-                        .setContentIntent(contentPendingIntent)
-                        .setStyle(NotificationCompat.BigTextStyle().bigText(
-                            newArtifactVersionsToNotifySet.joinToString("") { n -> "$n\n" })
-                        )
-                        .setSmallIcon(R.drawable.ic_new_releases_outline_24dp)
-                        .setOnlyAlertOnce(true)
-                        .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
-                        .build()
+                        val notification = NotificationCompat.Builder(appContext, NotificationHelper.UPDATES_CHANNEL_ID)
+                            .setContentTitle("New Versions Available!")
+                            .setContentIntent(contentPendingIntent)
+                            .setStyle(NotificationCompat.BigTextStyle().bigText(
+                                newArtifactVersionsToNotifySet.joinToString("") { n -> "\n$n\n" })
+                            )
+                            .setSmallIcon(R.drawable.ic_new_releases_outline_24dp)
+                            .setOnlyAlertOnce(true)
+                            .setAutoCancel(true)
+                            .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
+                            .build()
 
-                    NotificationManagerCompat.from(appContext).apply {
-                        notify(NotificationHelper.UPDATES_NOTIFICATION_ID, notification)
+
+                        NotificationManagerCompat.from(appContext).apply {
+                            notify(NotificationHelper.UPDATES_NOTIFICATION_ID, notification)
+                        }
                     }
                 }
             }
         }
     }
 
-    private fun artifactHasNewerVersion(old: AndroidXArtifact, new: AndroidXArtifact): Boolean {
+    fun artifactHasNewerVersion(old: AndroidXArtifact, new: AndroidXArtifact): Boolean {
         return if (Semver(new.latestVersion, Semver.SemverType.LOOSE).isGreaterThan(old.latestVersion)) {
             val update = AndroidXArtifactUpdate().apply {
                 name = new.name
@@ -134,7 +140,7 @@ class LibrariesViewModel(
         }
     }
 
-    private fun fetchArtifacts(): MutableList<AndroidXArtifact> {
+    fun fetchArtifacts(): MutableList<AndroidXArtifact> {
         val arp = AndroidXReleasePuller()
         val mList = mutableListOf<AndroidXArtifact>()
 
@@ -168,30 +174,32 @@ class LibrariesViewModel(
         return mList
     }
 
-    // TODO remove
     // DB needs to be populated with the following artifacts for this to work
     fun testNewerVersion() {
 //        val artifact1 = artifacts.value?.find {
 //            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity"))
 //        }.apply {
+//            this?.latestStableVersion = "1.0.0"
 //            this?.latestVersion = "1.0.0"
 //        }
 //
 //        val artifact2 = artifacts.value?.find {
 //            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity-ktx"))
 //        }.apply {
+//            this?.latestStableVersion = "1.0.0"
 //            this?.latestVersion = "1.0.0"
 //        }
 //
 //        val artifact3 = artifacts.value?.find {
 //            ((it.packageName == "androidx.compose") && (it.name == "androidx.compose:compose-compiler"))
 //        }.apply {
-//            this?.latestVersion = "0.1.0-dev04"
+//            this?.latestVersion = "0.1.0-dev01"
 //        }
 //
 //        val artifact4 = artifacts.value?.find {
 //            ((it.packageName == "androidx.core") && (it.name == "androidx.core:core"))
 //        }.apply {
+//            this?.latestStableVersion = "1.0.0"
 //            this?.latestVersion = "1.0.0"
 //        }
 //
