@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactDao
 import name.lmj0011.jetpackreleasetracker.ui.libraries.LibrariesViewModel
 
-class HomeViewModelFactory(
+class LibrariesViewModelFactory(
     private val dataSource: AndroidXArtifactDao,
     private val application: Application
 ) : ViewModelProvider.Factory {

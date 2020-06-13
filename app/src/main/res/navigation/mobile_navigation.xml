@@ -21,11 +21,19 @@
         android:id="@+id/navigation_project_syncs"
         android:name="name.lmj0011.jetpackreleasetracker.ui.projectsyncs.ProjectSyncsFragment"
         android:label="@string/title_project_syncs"
-        tools:layout="@layout/fragment_project_syncs" />
-
+        tools:layout="@layout/fragment_project_syncs" >
+        <action
+            android:id="@+id/action_navigation_project_syncs_to_createProjectSyncFragment"
+            app:destination="@id/createProjectSyncFragment"
+            app:popUpTo="@id/createProjectSyncFragment" />
+    </fragment>
     <fragment
         android:id="@+id/navigation_notifications"
         android:name="name.lmj0011.jetpackreleasetracker.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/createProjectSyncFragment"
+        android:name="name.lmj0011.jetpackreleasetracker.ui.projectsyncs.CreateProjectSyncFragment"
+        android:label="Add Project" />
 </navigation>

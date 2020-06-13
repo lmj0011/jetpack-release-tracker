@@ -7,6 +7,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -14,13 +15,15 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.dialog_about.view.*
+import name.lmj0011.jetpackreleasetracker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         navController = findNavController(R.id.nav_host_fragment)
@@ -31,6 +34,8 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        binding.fab.hide()
     }
 
     override fun onResume() {
@@ -78,6 +83,24 @@ class MainActivity : AppCompatActivity() {
         val toast = Toast.makeText(this, message, duration)
         toast.setGravity(Gravity.TOP, 0, 150)
         toast.show()
+    }
+
+    fun showFabAndSetListener(cb: () -> Unit, imgSrcId: Int) {
+        binding.fab.let {
+            it.setOnClickListener(null) // should remove all attached listeners
+            it.setOnClickListener { cb() }
+
+            // hide and show to repaint the img src
+            it.hide()
+
+            it.setImageResource(imgSrcId)
+
+            it.show()
+        }
+    }
+
+    fun hideFab() {
+        binding.fab.hide()
     }
 
     fun showKeyBoard(v: View) {

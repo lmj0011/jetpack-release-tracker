@@ -18,10 +18,9 @@ import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.databinding.FragmentLibrariesBinding
-import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibrary
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXLibraryListAdapter
-import name.lmj0011.jetpackreleasetracker.helpers.factories.HomeViewModelFactory
+import name.lmj0011.jetpackreleasetracker.helpers.factories.LibrariesViewModelFactory
 import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
 import timber.log.Timber
 
@@ -49,7 +48,7 @@ class LibrariesFragment : Fragment(),
 
         val application = requireNotNull(this.activity).application
         val dataSource = AppDatabase.getInstance(application).androidXArtifactDao
-        val viewModelFactory = HomeViewModelFactory(dataSource, application)
+        val viewModelFactory = LibrariesViewModelFactory(dataSource, application)
         librariesViewModel = ViewModelProvider(this, viewModelFactory).get(LibrariesViewModel::class.java)
 
         listAdapter = AndroidXLibraryListAdapter(
@@ -127,6 +126,8 @@ class LibrariesFragment : Fragment(),
         }
 
         librariesViewModel.normalRefresh(mainActivity, true)
+
+        mainActivity.hideFab()
 
         return binding.root
     }
