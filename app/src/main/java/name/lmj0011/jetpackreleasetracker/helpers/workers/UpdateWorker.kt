@@ -9,8 +9,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
@@ -22,25 +21,24 @@ import timber.log.Timber
 class UpdateWorker (private val appContext: Context, workerParams: WorkerParameters)
     : CoroutineWorker(appContext, workerParams) {
 
-    var debugMessage = "${this::class.simpleName} performed work."
-
-    override suspend fun doWork(): Result = coroutineScope {
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         // Do the work here
         val application = appContext.applicationContext as Application
         val dataSource = AppDatabase.getInstance(appContext).androidXArtifactDao
+        var debugMessage = "${this::class.simpleName} performed work."
 
         /**
          * We're only using this viewModel for some of it's methods that don't involve live data.
-         *  Live data doesn't work as expected inside a Worker, since there it's not a lifecycleOwner
+         *  Live data doesn't work as expected inside a Worker, since it's not a lifecycleOwner
          */
         val librariesViewModel = LibrariesViewModel(dataSource, application)
+        val artifactsToInsert = mutableListOf<AndroidXArtifact>()
+        val artifactsToUpdate = mutableListOf<AndroidXArtifact>()
+        val newArtifactVersionsToNotifySet = mutableSetOf<String>()
 
         val job = async {
             val localArtifacts = dataSource.getAllAndroidXArtifactsForWorker()
             val upstreamArtifactsList = librariesViewModel.fetchArtifacts()
-            val artifactsToInsert = mutableListOf<AndroidXArtifact>()
-            val artifactsToUpdate = mutableListOf<AndroidXArtifact>()
-            val newArtifactVersionsToNotifySet = mutableSetOf<String>()
 
             upstreamArtifactsList.forEach {upstreamArtifact ->
                 val updatedArtifact = localArtifacts?.find { localArtifact ->
@@ -85,6 +83,7 @@ class UpdateWorker (private val appContext: Context, workerParams: WorkerParamet
                     )
                     .setSmallIcon(R.drawable.ic_new_releases_outline_24dp)
                     .setOnlyAlertOnce(true)
+                    .setAutoCancel(true)
                     .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
                     .build()
 

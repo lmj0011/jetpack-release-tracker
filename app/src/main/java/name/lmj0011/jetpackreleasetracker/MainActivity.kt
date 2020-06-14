@@ -38,6 +38,8 @@ class MainActivity : AppCompatActivity() {
         intent.extras?.getInt("menuItemId")?.let {
             navigateTo(it)
         }
+
+        intent.replaceExtras(null)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
