@@ -32,8 +32,5 @@ data class ProjectSync (
 
     // Used to determine whether or not to sync this project against stabled versions of it's dependencies
     @ColumnInfo(name = "stableVersionsOnly")
-    var stableVersionsOnly: Boolean = false,
-
-    @ColumnInfo(name = "androidxArtifactsIds")
-    var androidxArtifactsIds: MutableList<Long> = mutableListOf()
+    var stableVersionsOnly: Boolean = false
 ) : BaseEntity()

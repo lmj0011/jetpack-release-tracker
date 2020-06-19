@@ -6,7 +6,7 @@
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/editProjectSyncFragmentConstraintLayout"
+        android:id="@+id/createProjectSyncFragmentConstraintLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -51,7 +51,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/editProjectSyncCircularProgressButton"
+            android:id="@+id/createProjectSyncCircularProgressButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="200dp"

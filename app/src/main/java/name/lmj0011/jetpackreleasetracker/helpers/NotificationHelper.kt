@@ -11,11 +11,14 @@ import name.lmj0011.jetpackreleasetracker.R
  *  calling the same notification in more than one place, then save some code by calling its Builder from here
  */
 object NotificationHelper {
-    const val UPDATES_CHANNEL_ID = "name.lmj0011.bottomnavtinkering.helpers.NotificationHelper#updates"
+    const val UPDATES_CHANNEL_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#updates"
     const val UPDATES_NOTIFICATION_ID = 1000
 
-    const val DEBUG_CHANNEL_ID = "name.lmj0011.bottomnavtinkering.helpers.NotificationHelper#debug"
+    const val DEBUG_CHANNEL_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#debug"
     const val DEBUG_NOTIFICATION_ID = 1001
+
+    const val PROJECT_SYNC_ALL_CHANNEL_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#project-sync-all"
+    const val PROJECT_SYNC_ALL_NOTIFICATION_ID = 1002
 
     /**
      * create all necessary Notification channels here
@@ -23,19 +26,34 @@ object NotificationHelper {
     fun init(application: Application) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val updatesServiceChannel = NotificationChannel(UPDATES_CHANNEL_ID, "Updates", NotificationManager.IMPORTANCE_DEFAULT)
+
             val debugServiceChannel = NotificationChannel(DEBUG_CHANNEL_ID, "Debug", NotificationManager.IMPORTANCE_DEFAULT)
+            debugServiceChannel.setSound(null,null)
+
+            val projectSyncAllServiceChannel = NotificationChannel(PROJECT_SYNC_ALL_CHANNEL_ID, "Project Sync All", NotificationManager.IMPORTANCE_DEFAULT)
+            projectSyncAllServiceChannel.setSound(null,null)
+
             val manager = application.getSystemService(NotificationManager::class.java)
+
+            purgeOldChannels(manager)
 
             if(application.resources.getBoolean(R.bool.DEBUG_MODE)) {
                 manager!!.createNotificationChannels(
-                    mutableListOf(updatesServiceChannel, debugServiceChannel)
+                    mutableListOf(updatesServiceChannel, debugServiceChannel, projectSyncAllServiceChannel)
                 )
             } else {
                 manager!!.createNotificationChannels(
-                    mutableListOf(updatesServiceChannel)
+                    mutableListOf(updatesServiceChannel, projectSyncAllServiceChannel)
                 )
             }
 
+        }
+    }
+
+    private fun purgeOldChannels(manager: NotificationManager) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            manager.deleteNotificationChannel("name.lmj0011.bottomnavtinkering.helpers.NotificationHelper#updates")
+            manager.deleteNotificationChannel("name.lmj0011.bottomnavtinkering.helpers.NotificationHelper#debug")
         }
     }
 

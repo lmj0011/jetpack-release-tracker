@@ -3,11 +3,15 @@ package name.lmj0011.jetpackreleasetracker.ui.projectsyncs
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
@@ -19,6 +23,9 @@ import name.lmj0011.jetpackreleasetracker.helpers.Util
 import name.lmj0011.jetpackreleasetracker.helpers.adapters.ProjectSyncListAdapter
 import name.lmj0011.jetpackreleasetracker.helpers.factories.ProjectSyncViewModelFactory
 import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
+import name.lmj0011.jetpackreleasetracker.helpers.workers.ProjectSyncAllWorker
+import name.lmj0011.jetpackreleasetracker.helpers.workers.ProjectSyncAllWorker.Companion.Progress
+import timber.log.Timber
 
 class ProjectSyncsFragment : Fragment(),
     SearchableRecyclerView
@@ -45,7 +52,13 @@ class ProjectSyncsFragment : Fragment(),
         val viewModelFactory = ProjectSyncViewModelFactory(dataSource, application)
         projectSyncsViewModel = ViewModelProvider(this, viewModelFactory).get(ProjectSyncsViewModel::class.java)
 
-        listAdapter = ProjectSyncListAdapter(ProjectSyncListAdapter.ProjectSyncListener {})
+        listAdapter = ProjectSyncListAdapter(ProjectSyncListAdapter.ProjectSyncListener {
+            val bundle = bundleOf(getString(R.string.key_project_sync_id_bundle_property) to it.id)
+            findNavController().navigate(
+                R.id.action_navigation_project_syncs_to_editProjectSyncFragment,
+                bundle
+            )
+        })
 
         binding.projectSyncList.addItemDecoration(DividerItemDecoration(mainActivity, DividerItemDecoration.VERTICAL))
         binding.projectSyncList.adapter = listAdapter
@@ -94,6 +107,35 @@ class ProjectSyncsFragment : Fragment(),
                 this@ProjectSyncsFragment.toggleSearch(mainActivity, binding.projectSyncsSearchView, false)
             }
         }
+
+        binding.swipeRefresh.setOnRefreshListener {
+            val projectSyncAllWorkRequest = OneTimeWorkRequestBuilder<ProjectSyncAllWorker>().build()
+
+            WorkManager.getInstance(application)
+                .getWorkInfoByIdLiveData(projectSyncAllWorkRequest.id)
+                .observe(viewLifecycleOwner, Observer { workInfo ->
+                    if (workInfo != null) {
+                        val progress = workInfo.progress
+                        val value = progress.getInt(Progress, 0)
+
+                        if (value >= 100) {
+                            projectSyncsViewModel.refreshProjectSyncs()
+                        }
+                    }
+                })
+
+            WorkManager.getInstance(application).enqueue(projectSyncAllWorkRequest)
+
+            binding.swipeRefresh.isRefreshing = false
+        }
+
+
+        mainActivity.showFabAndSetListener({
+            findNavController().navigate(
+                ProjectSyncsFragmentDirections.actionNavigationProjectSyncsToCreateProjectSyncFragment()
+            )
+        }, R.drawable.ic_baseline_add_24)
+
 
         return binding.root
     }

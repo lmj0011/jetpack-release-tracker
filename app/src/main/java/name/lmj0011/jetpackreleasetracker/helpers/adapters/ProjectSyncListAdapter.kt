@@ -24,15 +24,19 @@ class ProjectSyncListAdapter(private val clickListener: ProjectSyncListener):
                 // all deps are up to date
                 (projectSync.upToDateCount > 0 && projectSync.outdatedCount == 0)  -> {
                     binding.syncIndicatorImageView.setImageResource(R.drawable.ic_baseline_sync_green_24)
-                    binding.syncStatusTextView.text = "all androidx dependencies are up to date"
+                    binding.syncStatusTextView.text = context.getString(R.string.project_sync_all_up_to_date)
                 }
-                (projectSync.outdatedCount > 0)  -> {
+                (projectSync.outdatedCount == 1)  -> {
                     binding.syncIndicatorImageView.setImageResource(R.drawable.ic_baseline_sync_problem_24)
-                    binding.syncStatusTextView.text = "Newer versions found for ${projectSync.outdatedCount} androidx dependencies"
+                    binding.syncStatusTextView.text = context.getString(R.string.project_sync_outdated_singular)
+                }
+                (projectSync.outdatedCount > 1)  -> {
+                    binding.syncIndicatorImageView.setImageResource(R.drawable.ic_baseline_sync_problem_24)
+                    binding.syncStatusTextView.text = context.getString(R.string.project_sync_outdated_plural, projectSync.outdatedCount)
                 }
                 else -> {
                     binding.syncIndicatorImageView.setImageResource(R.drawable.ic_baseline_sync_24)
-                    binding.syncStatusTextView.text = "no androidx dependencies found."
+                    binding.syncStatusTextView.text = context.getString(R.string.project_sync_no_dependencies)
                 }
             }
 

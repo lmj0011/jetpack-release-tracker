@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import br.com.simplepass.loadingbutton.presentation.State
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
@@ -47,6 +48,19 @@ class CreateProjectSyncFragment : Fragment()
         projectSyncsViewModel = ViewModelProvider(this, viewModelFactory).get(ProjectSyncsViewModel::class.java)
 
         binding.lifecycleOwner = this
+        binding.createProjectSyncCircularProgressButton.setOnClickListener(this::saveButtonOnClickListener)
+
+        projectSyncsViewModel.projectSyncs.observe(viewLifecycleOwner, Observer {
+            val btnState = binding.createProjectSyncCircularProgressButton.getState()
+
+            // revert button animation and navigate back to Trips
+            if (btnState == State.MORPHING || btnState == State.PROGRESS) {
+                binding.createProjectSyncCircularProgressButton.revertAnimation()
+                this.findNavController().navigate(R.id.navigation_project_syncs)
+            }
+        })
+
+        mainActivity.hideFab()
 
         return binding.root
     }
@@ -65,5 +79,19 @@ class CreateProjectSyncFragment : Fragment()
 
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun saveButtonOnClickListener(v: View) {
+        var projectName = binding.projectNameEditText.text.toString()
+        var projectDepListUrl = binding.depsUrlEditText.text.toString()
+
+        if(projectName.isNullOrBlank()) projectName = "[No Name]"
+        if(projectDepListUrl.isNullOrBlank()) projectDepListUrl = "https://lj-public.s3.amazonaws.com/deps.list.txt"
+
+        projectSyncsViewModel.insertProjectSync(projectName, projectDepListUrl)
+
+        binding.createProjectSyncCircularProgressButton.isEnabled = false
+        binding.createProjectSyncCircularProgressButton.startAnimation()
+
     }
 }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "2c3bddd359aa70d9bca8b4f8dbf0949a",
+    "identityHash": "b66aa3c5792cef48cfc2f2b76d8dc920",
     "entities": [
       {
         "tableName": "artifacts_table",
@@ -130,7 +130,7 @@
       },
       {
         "tableName": "project_syncs_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL, `name` TEXT NOT NULL, `upToDateCount` INTEGER NOT NULL, `outdatedCount` INTEGER NOT NULL, `depsListUrl` TEXT NOT NULL, `stableVersionsOnly` INTEGER NOT NULL, `androidxArtifactsIds` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL, `name` TEXT NOT NULL, `upToDateCount` INTEGER NOT NULL, `outdatedCount` INTEGER NOT NULL, `depsListUrl` TEXT NOT NULL, `stableVersionsOnly` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -179,12 +179,6 @@
             "columnName": "stableVersionsOnly",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "androidxArtifactsIds",
-            "columnName": "androidxArtifactsIds",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -200,7 +194,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2c3bddd359aa70d9bca8b4f8dbf0949a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'b66aa3c5792cef48cfc2f2b76d8dc920')"
     ]
   }
 }

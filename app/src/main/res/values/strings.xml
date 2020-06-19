@@ -4,13 +4,22 @@
     <string name="title_updates">Updates</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_project_syncs">Project Sync</string>
+    <string name="title_create_project_sync">Add Project</string>
+    <string name="title_edit_project_sync">Edit Project</string>
     <string name="list_header_artifact">Artifact</string>
     <string name="list_header_latest_stable">Stable</string>
     <string name="list_header_latest_release">Latest</string>
     <string name="no_updates_text">New AndroidX releases will show up here</string>
-    <string name="no_project_syncs_text">Monitor the Androidx dependencies in your projects \n Learn more [HERE]</string>
+    <string name="empty_project_syncs_text">Monitor the Androidx dependencies in your projects \n Learn more [HERE]</string>
+    <string name="stable_versions_only_switch_text">track stable versions only</string>
     <string name="jetpack_release_archive_url">https://developer.android.com/jetpack/androidx/versions/all-channel</string>
     <string name="debug_notification_content_title">[debug message]</string>
+
+    <string name="project_sync_all_up_to_date">All androidx dependencies are up to date</string>
+    <string name="project_sync_outdated_singular">Newer version found for 1 androidx dependency</string>
+    <string name="project_sync_outdated_plural">Newer versions found for %1$d androidx dependencies</string>
+    <string name="project_sync_no_dependencies">No androidx dependencies found</string>
+
 
     <!-- Shared Preference Keys-->
     <string name="pref_key_starred_libraries">PREF_STARRED_LIBRARIES</string>
@@ -19,4 +28,5 @@
     <!--  Unique Worker Tags/Names  -->
     <string name="update_periodic_worker">UPDATE_PERIODIC_WORKER</string>
     <string name="github_repo_url">https://github.com/lmj0011/jetpack-release-tracker</string>
+    <string name="key_project_sync_id_bundle_property">projectSyncId</string>
 </resources>

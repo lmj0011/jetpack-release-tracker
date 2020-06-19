@@ -26,6 +26,9 @@
             android:id="@+id/action_navigation_project_syncs_to_createProjectSyncFragment"
             app:destination="@id/createProjectSyncFragment"
             app:popUpTo="@id/createProjectSyncFragment" />
+        <action
+            android:id="@+id/action_navigation_project_syncs_to_editProjectSyncFragment"
+            app:destination="@id/editProjectSyncFragment" />
     </fragment>
     <fragment
         android:id="@+id/navigation_notifications"
@@ -35,5 +38,14 @@
     <fragment
         android:id="@+id/createProjectSyncFragment"
         android:name="name.lmj0011.jetpackreleasetracker.ui.projectsyncs.CreateProjectSyncFragment"
-        android:label="Add Project" />
+        android:label="@string/title_create_project_sync" />
+    <fragment
+        android:id="@+id/editProjectSyncFragment"
+        android:name="name.lmj0011.jetpackreleasetracker.ui.projectsyncs.EditProjectSyncFragment"
+        android:label="@string/title_edit_project_sync">
+        <argument
+            android:name="projectSyncId"
+            android:defaultValue="0L"
+            app:argType="long" />
+    </fragment>
 </navigation>

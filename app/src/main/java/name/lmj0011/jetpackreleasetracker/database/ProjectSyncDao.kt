@@ -1,37 +1,47 @@
 package name.lmj0011.jetpackreleasetracker.database
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.room.*
 
 @Dao
 interface ProjectSyncDao: BaseDao {
     @Insert
-    fun actualInsert(artifactUpdate: ProjectSync)
+    fun actualInsert(project: ProjectSync)
 
-    fun insert(artifactUpdate: ProjectSync) {
-        actualInsert(setTimestamps(artifactUpdate) as ProjectSync)
+    fun insert(project: ProjectSync) {
+        actualInsert(setTimestamps(project) as ProjectSync)
     }
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun actualInsertAll(artifactUpdates: MutableList<ProjectSync>)
+    // try to update, then insert row if it does not exists
+    fun upsert(project: ProjectSync) {
+        when(get(project.id)) {
+            is ProjectSync -> { update(project) }
+            else -> { insert(project) }
+        }
+    }
 
-    fun insertAll(artifactUpdates: MutableList<ProjectSync>) {
-        val list = artifactUpdates.map { setTimestamps(it) as ProjectSync }.toMutableList()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun actualInsertAll(projects: MutableList<ProjectSync>)
+
+    fun insertAll(projects: MutableList<ProjectSync>) {
+        val list = projects.map { setTimestamps(it) as ProjectSync }.toMutableList()
         actualInsertAll(list)
     }
 
     @Update
-    fun actualUpdate(artifactUpdate: ProjectSync)
+    fun actualUpdate(project: ProjectSync)
 
-    fun update(artifactUpdate: ProjectSync) {
-        actualUpdate(setUpdatedAt(artifactUpdate) as ProjectSync)
+    fun update(project: ProjectSync) {
+        actualUpdate(setUpdatedAt(project) as ProjectSync)
     }
 
     @Update
-    fun actualUpdateAll(artifactUpdates: MutableList<ProjectSync>)
+    fun actualUpdateAll(projects: MutableList<ProjectSync>)
 
-    fun updateAll(artifactUpdates: MutableList<ProjectSync>) {
-        val list = artifactUpdates.map { setUpdatedAt(it) as ProjectSync }.toMutableList()
+    fun updateAll(projects: MutableList<ProjectSync>) {
+        val list = projects.map { setUpdatedAt(it) as ProjectSync }.toMutableList()
         actualUpdateAll(list)
     }
 
@@ -40,6 +50,12 @@ interface ProjectSyncDao: BaseDao {
 
     @Query("SELECT * FROM project_syncs_table ORDER BY id DESC")
     fun getAllProjectSyncs(): LiveData<MutableList<ProjectSync>>
+
+    @Query("SELECT * FROM project_syncs_table ORDER BY id DESC")
+    fun getAllProjectSyncsForWorker(): MutableList<ProjectSync>
+
+    @Query("SELECT * FROM artifacts_table ORDER BY id DESC")
+    fun getAllAndroidXArtifacts(): MutableList<AndroidXArtifact>
 
     @Query("DELETE from project_syncs_table WHERE id = :key")
     fun deleteByProjectSyncId(key: Long): Int

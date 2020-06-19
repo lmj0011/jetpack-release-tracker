@@ -1,6 +1,5 @@
 package name.lmj0011.jetpackreleasetracker
 
-import android.os.Build
 import androidx.work.*
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
 import name.lmj0011.jetpackreleasetracker.helpers.workers.UpdateWorker
@@ -20,9 +19,13 @@ class Application: android.app.Application() {
 
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
+            .setRequiresBatteryNotLow(true)
             .build()
 
-        val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(15, TimeUnit.MINUTES)
+        val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(
+            1, TimeUnit.HOURS,
+            15, TimeUnit.MINUTES // runs once, anytime during the last 15 minutes of every hour
+        )
             .setInitialDelay(2, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .build()

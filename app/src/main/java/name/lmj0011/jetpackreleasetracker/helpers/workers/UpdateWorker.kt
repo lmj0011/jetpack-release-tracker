@@ -21,11 +21,12 @@ import timber.log.Timber
 class UpdateWorker (private val appContext: Context, workerParams: WorkerParameters)
     : CoroutineWorker(appContext, workerParams) {
 
+    var debugMessage = "${this::class.simpleName} performed work."
+
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         // Do the work here
         val application = appContext.applicationContext as Application
         val dataSource = AppDatabase.getInstance(appContext).androidXArtifactDao
-        var debugMessage = "${this::class.simpleName} performed work."
 
         /**
          * We're only using this viewModel for some of it's methods that don't involve live data.
@@ -96,6 +97,8 @@ class UpdateWorker (private val appContext: Context, workerParams: WorkerParamet
 
         job.await()
         debugStatusNotification(debugMessage)
+
+        AppDatabase.closeInstance()
         Result.success()
     }
 

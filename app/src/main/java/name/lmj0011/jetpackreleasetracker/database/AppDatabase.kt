@@ -9,7 +9,6 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [AndroidXArtifact::class, AndroidXArtifactUpdate::class, ProjectSync::class], version = 2,  exportSchema = true)
-@TypeConverters(DataConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract val androidXArtifactDao: AndroidXArtifactDao
     abstract val androidXArtifactUpdateDao: AndroidXArtifactUpdateDao
@@ -23,7 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("CREATE TABLE IF NOT EXISTS `project_syncs_table`" +
                         " (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `created_at` TEXT NOT NULL, `updated_at` TEXT NOT NULL,"+
                         "`name` TEXT NOT NULL, `upToDateCount` INTEGER NOT NULL, `outdatedCount` INTEGER NOT NULL,"+
-                        "`depsListUrl` TEXT NOT NULL, `stableVersionsOnly` INTEGER NOT NULL, `androidxArtifactsIds` TEXT NOT NULL )")
+                        "`depsListUrl` TEXT NOT NULL, `stableVersionsOnly` INTEGER NOT NULL)")
             }
         }
 
@@ -43,8 +42,18 @@ abstract class AppDatabase : RoomDatabase() {
                     .addMigrations(MIGRATION_1_2)
                     .build()
                 }
-
                 return instance
+            }
+        }
+
+        // close the database, if it's open.
+        fun closeInstance() {
+            synchronized(this) {
+                var instance = INSTANCE
+
+                if (instance !== null) {
+                   instance.close()
+                }
             }
         }
     }

@@ -15,13 +15,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5"/>
+            app:layout_constraintGuide_percent="0.5" />
 
         <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/editProjectSyncCircularProgressButton2"
+            android:id="@+id/editProjectDeleteCircularProgressButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="20dp"
             android:background="#D6D7D7"
             android:text="Delete"
             app:layout_constraintEnd_toStartOf="@+id/buttonsGuideline"
@@ -34,24 +34,24 @@
             android:id="@+id/projectNameEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:ems="10"
             android:hint="Project Name"
             android:inputType="textShortMessage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/scrollView2" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
             android:id="@+id/depsUrlEditText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="URL to Dependencies List"
+            android:inputType="textShortMessage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/projectNameEditText" />
+            app:layout_constraintTop_toBottomOf="@+id/projectNameEditText"/>
 
         <TextView
             android:id="@+id/latitudeHiddenTextView"
@@ -72,12 +72,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
-            android:id="@+id/editProjectSyncCircularProgressButton"
+            android:id="@+id/editProjectSaveCircularProgressButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="20dp"
             android:background="#D6D7D7"
-            android:text="Sync"
+            android:text="Save"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/buttonsGuideline"
             app:layout_constraintTop_toBottomOf="@+id/depsUrlEditText"
@@ -88,32 +88,57 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="stable versions only"
+            android:text="@string/stable_versions_only_switch_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editProjectSyncCircularProgressButton2" />
+            app:layout_constraintTop_toBottomOf="@+id/editProjectDeleteCircularProgressButton" />
+
+        <View
+            android:id="@+id/dividerView"
+            style="@style/Divider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/stableVersionsOnlySwitch" />
+
+        <TextView
+            android:id="@+id/depsListHeaderTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="This project's androidx dependencies"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dividerView" />
 
         <ScrollView
-            android:id="@+id/scrollView2"
-            android:layout_width="409dp"
-            android:layout_height="354dp"
+            android:id="@+id/editProjectSyncScrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constrainedHeight="false"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/depsListHeaderTextView">
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/editProjectSyncNestedConstraintLayout1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:padding="5dp">
 
-                <EditText
-                    android:id="@+id/editTextTextMultiLine"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:ems="10"
-                    android:gravity="start|top"
-                    android:inputType="textMultiLine" />
-            </LinearLayout>
+                <TextView
+                    android:id="@+id/depsListPlaceHolderTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.496"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>
 
 
