@@ -66,7 +66,6 @@ class UpdatesFragment : Fragment(),
         updatesViewModel.artifactUpdates.observe(viewLifecycleOwner, Observer {
             listAdapter.submitList(it)
             listAdapter.notifyDataSetChanged()
-            mainActivity.mainCyclicProgressBar.visibility = View.GONE
 
             if (it.isNotEmpty()) {
                 binding.emptyListTextView.visibility = View.GONE

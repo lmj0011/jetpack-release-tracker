@@ -10,6 +10,7 @@ import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.HttpException
 import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.*
+import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdateDao
 import name.lmj0011.jetpackreleasetracker.database.ProjectSync
 import name.lmj0011.jetpackreleasetracker.database.ProjectSyncDao
@@ -42,7 +43,14 @@ class ProjectSyncsViewModel(
     // do this more gracefully using a Repository.
     fun refreshProjectSyncs() {
         uiScope.launch {
-            val staleProjectSync = projectSyncs.value?.firstOrNull()
+            var staleProjectSync: ProjectSync?
+
+            do {
+                delay(1000L)
+                staleProjectSync = withContext(Dispatchers.IO) { database.getAllProjectSyncsForWorker().firstOrNull() }
+            } while (staleProjectSync == null)
+
+            Timber.d("staleProjectSync: $staleProjectSync")
 
             staleProjectSync?.let {it1 ->
                 val freshProjectSync = withContext(Dispatchers.IO) { database.get(it1.id) }

@@ -86,7 +86,7 @@ class CreateProjectSyncFragment : Fragment()
         var projectDepListUrl = binding.depsUrlEditText.text.toString()
 
         if(projectName.isNullOrBlank()) projectName = "[No Name]"
-        if(projectDepListUrl.isNullOrBlank()) projectDepListUrl = "https://lj-public.s3.amazonaws.com/deps.list.txt"
+        if(projectDepListUrl.isNullOrBlank()) projectDepListUrl = ""
 
         projectSyncsViewModel.insertProjectSync(projectName, projectDepListUrl)
 

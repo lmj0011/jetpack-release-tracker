@@ -69,12 +69,18 @@ android {
     // Big Up! to cSn: https://stackoverflow.com/a/36626584/2445763
     task generateDependencyListFile {
         configurations.implementation.setCanBeResolved(true)
+        configurations.androidTestImplementation.setCanBeResolved(true)
 
         doLast {
             def str = "# auto-generated from ${this.name}; this file should be checked into version control\n"
-            def resolvedConfig = configurations.implementation.resolvedConfiguration
+            def resolvedImplementationConfig = configurations.implementation.resolvedConfiguration
+            def resolvedAndroidTestImplementationConfig = configurations.androidTestImplementation.resolvedConfiguration
 
-            resolvedConfig.firstLevelModuleDependencies.each { dep ->
+            resolvedImplementationConfig.firstLevelModuleDependencies.each { dep ->
+                str += "${dep.moduleGroup}:${dep.moduleName}:${dep.moduleVersion}\n"
+            }
+
+            resolvedAndroidTestImplementationConfig.firstLevelModuleDependencies.each { dep ->
                 str += "${dep.moduleGroup}:${dep.moduleName}:${dep.moduleVersion}\n"
             }
 

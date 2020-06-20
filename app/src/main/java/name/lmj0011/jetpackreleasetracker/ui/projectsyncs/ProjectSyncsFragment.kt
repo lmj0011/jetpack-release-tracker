@@ -68,12 +68,20 @@ class ProjectSyncsFragment : Fragment(),
         projectSyncsViewModel.projectSyncs.observe(viewLifecycleOwner, Observer {
             listAdapter.submitList(it)
             listAdapter.notifyDataSetChanged()
-            mainActivity.mainCyclicProgressBar.visibility = View.GONE
 
-            if (it.isNotEmpty()) {
-                binding.emptyListTextView.visibility = View.GONE
+            if (it.isEmpty()) {
+                binding.swipeRefresh.visibility = View.GONE
+                binding.emptyListContainer.visibility = View.VISIBLE
+            } else {
+                binding.swipeRefresh.visibility = View.VISIBLE
+                binding.emptyListContainer.visibility = View.GONE
             }
         })
+
+        binding.learnMoreButton.setOnClickListener {
+            Util.openUrlInWebBrowser(mainActivity, getString(R.string.project_syncs_learn_more_url))
+        }
+
 
         binding.projectSyncsSearchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -129,13 +137,11 @@ class ProjectSyncsFragment : Fragment(),
             binding.swipeRefresh.isRefreshing = false
         }
 
-
         mainActivity.showFabAndSetListener({
             findNavController().navigate(
                 ProjectSyncsFragmentDirections.actionNavigationProjectSyncsToCreateProjectSyncFragment()
             )
         }, R.drawable.ic_baseline_add_24)
-
 
         return binding.root
     }

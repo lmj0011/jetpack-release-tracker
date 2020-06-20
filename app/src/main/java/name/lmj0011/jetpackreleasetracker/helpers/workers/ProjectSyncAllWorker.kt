@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Message
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -44,17 +45,18 @@ class ProjectSyncAllWorker (private val appContext: Context, parameters: WorkerP
         setForeground(foregroundInfo)
 
         if (projectSyncs.isNotEmpty()) {
-            var progress = 0
-            // (progressIncrement * projectSyncs.size) should always equal a mininum of 100
-            var progressIncrement =  ceil(100f / projectSyncs.size).toInt()
+            var progress = 0f
+            // (progressIncrement * <collection>.size) should always equal a minimum of 100
+            var progressIncrement =  (100f / projectSyncs.size)
 
             projectSyncs.forEach { ps ->
                 projectSyncViewModel.synchronizeProject(ps).join()
                 progress = progress.plus(progressIncrement)
-                showProgress(progress, ps.name)
-                setProgress(workDataOf(Progress to progress))
+                val roundedUpProgress = ceil(progress).toInt()
+                showProgress(roundedUpProgress, ps.name)
+                setProgress(workDataOf(Progress to roundedUpProgress))
 
-                Timber.d("projectName: ${ps.name}, progress: $progress")
+                Timber.d("projectName: ${ps.name}, progress: $roundedUpProgress")
             }
         }
 
@@ -73,8 +75,8 @@ class ProjectSyncAllWorker (private val appContext: Context, parameters: WorkerP
             .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
             .build()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            appContext.getSystemService(NotificationManager::class.java).notify(NotificationHelper.PROJECT_SYNC_ALL_NOTIFICATION_ID, notification)
+        NotificationManagerCompat.from(appContext).apply {
+            notify(NotificationHelper.PROJECT_SYNC_ALL_NOTIFICATION_ID, notification)
         }
     }
 

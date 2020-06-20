@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import br.com.simplepass.loadingbutton.presentation.State
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
@@ -59,8 +60,14 @@ class EditProjectSyncFragment : Fragment()
         binding.editProjectSaveCircularProgressButton.setOnClickListener(this::saveButtonOnClickListener)
         
         binding.editProjectDeleteCircularProgressButton.setOnClickListener { _ ->
-            project?.let { projectSyncsViewModel.deleteProject(it) }
-            findNavController().navigate(R.id.navigation_project_syncs)
+            MaterialAlertDialogBuilder(mainActivity)
+                .setTitle("Delete this project?")
+                .setPositiveButton("Yes") { _, _ ->
+                    project?.let { projectSyncsViewModel.deleteProject(it) }
+                    findNavController().navigate(R.id.navigation_project_syncs)
+                }
+                .setNegativeButton("No") {_,_ -> }
+                .show()
         }
 
         projectSyncsViewModel.successMessages.observe(viewLifecycleOwner, Observer {

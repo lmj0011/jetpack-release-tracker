@@ -2,7 +2,7 @@ package name.lmj0011.jetpackreleasetracker
 
 import androidx.work.*
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
-import name.lmj0011.jetpackreleasetracker.helpers.workers.UpdateWorker
+import name.lmj0011.jetpackreleasetracker.helpers.workers.LibraryRefreshWorker
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -22,7 +22,7 @@ class Application: android.app.Application() {
             .setRequiresBatteryNotLow(true)
             .build()
 
-        val updateWorkRequest = PeriodicWorkRequestBuilder<UpdateWorker>(
+        val updateWorkRequest = PeriodicWorkRequestBuilder<LibraryRefreshWorker>(
             1, TimeUnit.HOURS,
             15, TimeUnit.MINUTES // runs once, anytime during the last 15 minutes of every hour
         )

@@ -11,6 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
@@ -22,6 +24,8 @@ import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXLibraryListAdapter
 import name.lmj0011.jetpackreleasetracker.helpers.factories.LibrariesViewModelFactory
 import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
+import name.lmj0011.jetpackreleasetracker.helpers.workers.LibraryRefreshWorker
+import name.lmj0011.jetpackreleasetracker.helpers.workers.ProjectSyncAllWorker
 import timber.log.Timber
 
 class LibrariesFragment : Fragment(),
@@ -78,21 +82,13 @@ class LibrariesFragment : Fragment(),
         binding.lifecycleOwner = this
 
 
-        listAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver(){
-            private var cnt = 0
-
-            // This gets called twice before list is fully populated with data
-            override fun onChanged() {
-                cnt++
-                if (cnt > 1) {
-                    mainActivity.mainCyclicProgressBar.visibility = View.GONE
-                }
-                Timber.d("RecyclerView.AdapterDataObserver.onChanged")
-                super.onChanged()
-            }
-        })
-
         librariesViewModel.artifacts.observe(viewLifecycleOwner, Observer {
+
+            // if it's always empty then there's a problem with the network or library source
+            if (it.isEmpty()) {
+                enqueueNewLibraryRefreshWorkerRequest()
+            }
+
             listAdapter.submitLibArtifacts(it.toList())
             refreshListAdapter()
         })
@@ -120,12 +116,16 @@ class LibrariesFragment : Fragment(),
             }
         }
 
+        binding.swipeRefresh.setOnRefreshListener {
+            enqueueNewLibraryRefreshWorkerRequest()
+            binding.swipeRefresh.isRefreshing = false
+        }
+
 
         if(!resources.getBoolean(R.bool.DEBUG_MODE)) {
             binding.testButton.visibility = View.GONE
         }
 
-        librariesViewModel.normalRefresh(mainActivity, true)
 
         mainActivity.hideFab()
 
@@ -135,6 +135,25 @@ class LibrariesFragment : Fragment(),
     override fun onDestroy() {
         super.onDestroy()
         fragmentJob?.cancel()
+    }
+
+    private fun enqueueNewLibraryRefreshWorkerRequest() {
+        val libraryRefreshWorkerRequest = OneTimeWorkRequestBuilder<LibraryRefreshWorker>().build()
+
+        WorkManager.getInstance(mainActivity)
+            .getWorkInfoByIdLiveData(libraryRefreshWorkerRequest.id)
+            .observe(viewLifecycleOwner, Observer { workInfo ->
+                if (workInfo != null) {
+                    val progress = workInfo.progress
+                    val value = progress.getInt(ProjectSyncAllWorker.Progress, 0)
+
+                    if (value >= 100) {
+                        librariesViewModel.refreshLibraries()
+                    }
+                }
+            })
+
+        WorkManager.getInstance(mainActivity).enqueue(libraryRefreshWorkerRequest)
     }
 
     private fun refreshListAdapter (query: String? = null) {

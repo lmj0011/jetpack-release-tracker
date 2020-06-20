@@ -15,6 +15,7 @@ import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactDao
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate
+import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXReleasePuller
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
@@ -33,6 +34,29 @@ class LibrariesViewModel(
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
+    }
+
+    // A disgraceful hack to force Livedata to refresh itself, could probably
+    // do this more gracefully using a Repository.
+    fun refreshLibraries() {
+        uiScope.launch {
+            var staleArtifact: AndroidXArtifact?
+
+            // usually takes 1-2 seconds after LibraryRefreshWorker runs on a fresh install
+            do {
+                delay(1000L)
+                staleArtifact = withContext(Dispatchers.IO) { database.getAllAndroidXArtifactsForWorker().firstOrNull() }
+            } while (staleArtifact == null)
+
+            Timber.d("staleArtifact: $staleArtifact")
+
+            staleArtifact?.let {it1 ->
+                val freshArtifact = withContext(Dispatchers.IO) { database.get(it1.id) }
+                freshArtifact?.let { it2 ->
+                    withContext(Dispatchers.IO) { database.update(it2) }
+                }
+            }
+        }
     }
 
     private fun dropArtifactsTable() {
