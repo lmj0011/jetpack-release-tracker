@@ -50,12 +50,19 @@ class CreateProjectSyncFragment : Fragment()
         binding.lifecycleOwner = this
         binding.createProjectSyncCircularProgressButton.setOnClickListener(this::saveButtonOnClickListener)
 
+        projectSyncsViewModel.errorMessages.observe(viewLifecycleOwner, Observer {
+            binding.createProjectSyncCircularProgressButton.revertAnimation()
+            binding.createProjectSyncCircularProgressButton.isEnabled = true
+            mainActivity.showToastMessage(it)
+        })
+
         projectSyncsViewModel.projectSyncs.observe(viewLifecycleOwner, Observer {
             val btnState = binding.createProjectSyncCircularProgressButton.getState()
 
             // revert button animation and navigate back to Trips
             if (btnState == State.MORPHING || btnState == State.PROGRESS) {
                 binding.createProjectSyncCircularProgressButton.revertAnimation()
+                binding.createProjectSyncCircularProgressButton.isEnabled = true
                 this.findNavController().navigate(R.id.navigation_project_syncs)
             }
         })

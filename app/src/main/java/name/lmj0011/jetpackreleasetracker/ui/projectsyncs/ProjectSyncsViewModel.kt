@@ -1,22 +1,17 @@
 package name.lmj0011.jetpackreleasetracker.ui.projectsyncs
 
 import android.app.Application
-import android.widget.TextView
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
-import com.github.kittinunf.fuel.core.HttpException
+import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.*
-import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
-import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdateDao
 import name.lmj0011.jetpackreleasetracker.database.ProjectSync
 import name.lmj0011.jetpackreleasetracker.database.ProjectSyncDao
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import timber.log.Timber
+import kotlin.Exception
 
 class ProjectSyncsViewModel(
     val database: ProjectSyncDao,
@@ -65,7 +60,7 @@ class ProjectSyncsViewModel(
         pName: String,
         pDepListUrl: String
     ) {
-        uiScope.launch {
+        uiScope.launch(Dispatchers.IO) {
             val project = ProjectSync().apply {
                 name = pName
                 depsListUrl = pDepListUrl
@@ -79,8 +74,8 @@ class ProjectSyncsViewModel(
     fun updateProjectSync(project: ProjectSync) {
         uiScope.launch {
             synchronizeProject(project).join()
-
             successMessages.postValue("${project.name} Saved")
+
         }
 
     }
@@ -101,19 +96,29 @@ class ProjectSyncsViewModel(
 
             projectSync.postValue(project)
 
-            project?.let { synchronizeProject(it).join() }
+            project?.let {
+                synchronizeProject(project).join()
+            }
         }
     }
 
-    suspend fun synchronizeProject(project: ProjectSync): Job {
+    fun synchronizeProject(project: ProjectSync): Job {
         // reset Project counters
         project.outdatedCount = 0
         project.upToDateCount = 0
 
-        return uiScope.launch {
-            // ref: https://github.com/kittinunf/fuel/blob/master/fuel/README.md#blocking-responses
-            val res = withContext(Dispatchers.IO) { Fuel.get(project.depsListUrl).response() }
-            val artifacts = withContext(Dispatchers.IO) { database.getAllAndroidXArtifacts() }
+        return uiScope.launch(Dispatchers.IO) {
+            lateinit var res: ResponseResultOf<ByteArray>
+
+            try {
+                // ref: https://github.com/kittinunf/fuel/blob/master/fuel/README.md#blocking-responses
+                res = Fuel.get(project.depsListUrl).response()
+            } catch (ex: Throwable) {
+                errorMessages.postValue(ex.message)
+                return@launch
+            }
+
+            val artifacts = database.getAllAndroidXArtifacts()
 
             val (data, error) = res.third
 
@@ -179,7 +184,7 @@ class ProjectSyncsViewModel(
                 }
             }
 
-            withContext(Dispatchers.IO) { this@ProjectSyncsViewModel.database.upsert(project) }
+            this@ProjectSyncsViewModel.database.upsert(project)
         }
     }
 
