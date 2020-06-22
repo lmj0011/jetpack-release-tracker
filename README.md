@@ -2,7 +2,7 @@
 
 Jetpack Release Tracker keeps you up to date on the latest AndroidX library releases.
 
-![screenshots of app](./.github/readme-images/banner.png)
+![screenshots of app](./.github/readme-images/3-image-banner.png)
 
 ## Features
 
@@ -10,6 +10,7 @@ Features include:
 * Quickly browse all the androidx.* libraries and view the latest versions
 * Bookmark libraries
 * Receive notifications whenever new versions of androidx libraries are released
+* Monitor androidx.* dependencies in your Projects
 
 ## Download
 Get the app from the [Google Play Store](https://play.google.com/store/apps/details?id=name.lmj0011.jetpackreleasetracker).
