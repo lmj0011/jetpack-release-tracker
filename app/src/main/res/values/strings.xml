@@ -22,13 +22,29 @@
     <string name="project_sync_outdated_plural">Newer versions found for %1$d androidx dependencies</string>
     <string name="project_sync_no_dependencies">No androidx dependencies found</string>
 
+    <string name="toast_message_updating_libraries">Updating Libraries</string>
+    <string name="toast_message_syncing_projects">Syncing Projects</string>
+
+    <string name="notification_text_fetching_artifacts">fetching Artifacts...</string>
+    <string name="notification_text_checking_for_newer_lib_versions">Checking for new library versions</string>
+    <string name="notification_text_new_versions_available">New Versions Available!</string>
+    <string name="notification_text_syncing_all_projects">Syncing all Projects</string>
+
+
+    <string name="notification_action_button_cancel">Cancel</string>
 
     <!-- Shared Preference Keys-->
     <string name="pref_key_starred_libraries">PREF_STARRED_LIBRARIES</string>
     <string name="pref_key_starred_filter">PREF_STARRED_FILTER</string>
 
+    <!-- Intent Extra Keys-->
+    <string name="intent_extra_key_worker_tags">WORKER_TAGS</string>
+
     <!--  Unique Worker Tags/Names  -->
     <string name="update_periodic_worker">UPDATE_PERIODIC_WORKER</string>
+    <string name="update_periodic_worker_tag">UPDATE_PERIODIC_WORKER_TAG</string>
+    <string name="update_one_time_worker_tag">UPDATE_ONE_TIME_WORKER_TAG</string>
+    <string name="project_sync_all_one_time_worker_tag">PROJECT_SYNC_ALL_ONE_TIME_WORKER_TAG</string>
     <string name="github_repo_url">https://github.com/lmj0011/jetpack-release-tracker</string>
     <string name="key_project_sync_id_bundle_property">projectSyncId</string>
 </resources>

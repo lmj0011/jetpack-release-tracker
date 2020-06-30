@@ -57,7 +57,7 @@
             android:id="@+id/testButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="@{ ()-> homeViewModel.testNewerVersion() }"
+            android:onClick="@{ ()-> homeViewModel.testAllNewerVersion() }"
             android:text="Test"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -531,6 +531,14 @@ object AndroidXLibraryDataset {
             listOf(
                 "tracing", "tracing-ktx"
             )
+        ),
+        AndroidXLibrary(
+            "https://dl.google.com/dl/android/maven2/androidx/slidingpanelayout/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/slidingpanelayout",
+            "androidx.slidingpanelayout",
+            listOf(
+                "slidingpanelayout"
+            )
         )
     )
 }

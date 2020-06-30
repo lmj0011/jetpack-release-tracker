@@ -198,41 +198,21 @@ class LibrariesViewModel(
         return mList
     }
 
-    // DB needs to be populated with the following artifacts for this to work
-    fun testNewerVersion() {
-//        val artifact1 = artifacts.value?.find {
-//            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity"))
-//        }.apply {
-//            this?.latestStableVersion = "1.0.0"
-//            this?.latestVersion = "1.0.0"
-//        }
-//
-//        val artifact2 = artifacts.value?.find {
-//            ((it.packageName == "androidx.activity") && (it.name == "androidx.activity:activity-ktx"))
-//        }.apply {
-//            this?.latestStableVersion = "1.0.0"
-//            this?.latestVersion = "1.0.0"
-//        }
-//
-//        val artifact3 = artifacts.value?.find {
-//            ((it.packageName == "androidx.compose") && (it.name == "androidx.compose:compose-compiler"))
-//        }.apply {
-//            this?.latestVersion = "0.1.0-dev01"
-//        }
-//
-//        val artifact4 = artifacts.value?.find {
-//            ((it.packageName == "androidx.core") && (it.name == "androidx.core:core"))
-//        }.apply {
-//            this?.latestStableVersion = "1.0.0"
-//            this?.latestVersion = "1.0.0"
-//        }
-//
-//
-//        uiScope.launch {
-//            val list = mutableListOf(artifact1!!, artifact2!!, artifact3!!, artifact4!!)
-//            withContext(Dispatchers.IO) {
-//                database.updateAll(list)
-//            }
-//        }
+    // resets all library artifacts to the earliest version
+    fun testAllNewerVersion() {
+        artifacts.value?.map {
+            it.latestStableVersion = "0.1.0-dev01"
+            it.latestVersion = "0.1.0-dev01"
+            it
+        }?.toMutableList()
+            ?.let {
+                uiScope.launch {
+                    withContext(Dispatchers.IO) {
+                        database.updateAll(it)
+                    }
+                }
+            }
+
+
     }
 }

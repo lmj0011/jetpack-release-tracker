@@ -20,8 +20,9 @@ object NotificationHelper {
     const val PROJECT_SYNC_ALL_CHANNEL_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#project-sync-all"
     const val PROJECT_SYNC_ALL_NOTIFICATION_ID = 1002
 
-    const val NEW_LIBRARY_VERSIONS_CHANNEL_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#new-library-versions"
-    const val NEW_LIBRARY_VERSIONS_NOTIFICATION_ID = 1003
+    const val NEW_LIBRARY_VERSIONS_CHANNEL_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#new-library-versions-v1"
+    const val NEW_LIBRARY_VERSIONS_NOTIFICATION_GROUP_ID = "name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#new-library-versions-group"
+    const val NEW_LIBRARY_VERSIONS_SUMMARY_NOTIFICATION_ID = 1003
 
     /**
      * create all necessary Notification channels here
@@ -38,6 +39,7 @@ object NotificationHelper {
             projectSyncAllServiceChannel.setSound(null,null)
 
             val newLibraryVersionsNotificationChannel = NotificationChannel(NEW_LIBRARY_VERSIONS_CHANNEL_ID, "New Library Versions", NotificationManager.IMPORTANCE_DEFAULT)
+            newLibraryVersionsNotificationChannel.setSound(null, null)
 
             val manager = application.getSystemService(NotificationManager::class.java)
 
@@ -61,6 +63,7 @@ object NotificationHelper {
             manager.deleteNotificationChannel("name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#updates")
             manager.deleteNotificationChannel("name.lmj0011.bottomnavtinkering.helpers.NotificationHelper#updates")
             manager.deleteNotificationChannel("name.lmj0011.bottomnavtinkering.helpers.NotificationHelper#debug")
+            manager.deleteNotificationChannel("name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper#new-library-versions")
         }
     }
 

@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
@@ -117,7 +116,9 @@ class ProjectSyncsFragment : Fragment(),
         }
 
         binding.swipeRefresh.setOnRefreshListener {
-            val projectSyncAllWorkRequest = OneTimeWorkRequestBuilder<ProjectSyncAllWorker>().build()
+            val projectSyncAllWorkRequest = OneTimeWorkRequestBuilder<ProjectSyncAllWorker>()
+                .addTag(mainActivity.getString(R.string.project_sync_all_one_time_worker_tag))
+                .build()
 
             WorkManager.getInstance(application)
                 .getWorkInfoByIdLiveData(projectSyncAllWorkRequest.id)
@@ -135,6 +136,7 @@ class ProjectSyncsFragment : Fragment(),
             WorkManager.getInstance(application).enqueue(projectSyncAllWorkRequest)
 
             binding.swipeRefresh.isRefreshing = false
+            mainActivity.showToastMessage(mainActivity.getString(R.string.toast_message_syncing_projects))
         }
 
         mainActivity.showFabAndSetListener({

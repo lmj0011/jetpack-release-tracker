@@ -119,6 +119,7 @@ class LibrariesFragment : Fragment(),
         binding.swipeRefresh.setOnRefreshListener {
             enqueueNewLibraryRefreshWorkerRequest()
             binding.swipeRefresh.isRefreshing = false
+            mainActivity.showToastMessage(mainActivity.getString(R.string.toast_message_updating_libraries))
         }
 
 
@@ -138,7 +139,9 @@ class LibrariesFragment : Fragment(),
     }
 
     private fun enqueueNewLibraryRefreshWorkerRequest() {
-        val libraryRefreshWorkerRequest = OneTimeWorkRequestBuilder<LibraryRefreshWorker>().build()
+        val libraryRefreshWorkerRequest = OneTimeWorkRequestBuilder<LibraryRefreshWorker>()
+            .addTag(mainActivity.getString(R.string.update_one_time_worker_tag))
+            .build()
 
         WorkManager.getInstance(mainActivity)
             .getWorkInfoByIdLiveData(libraryRefreshWorkerRequest.id)
