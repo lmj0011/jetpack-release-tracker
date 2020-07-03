@@ -1,28 +1,21 @@
 package name.lmj0011.jetpackreleasetracker.ui.projectsyncs
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
-import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import br.com.simplepass.loadingbutton.presentation.State
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AppDatabase
-import name.lmj0011.jetpackreleasetracker.database.ProjectSync
 import name.lmj0011.jetpackreleasetracker.databinding.FragmentCreateProjectSyncBinding
-import name.lmj0011.jetpackreleasetracker.databinding.FragmentProjectSyncsBinding
-import name.lmj0011.jetpackreleasetracker.helpers.Util
-import name.lmj0011.jetpackreleasetracker.helpers.adapters.ProjectSyncListAdapter
+import name.lmj0011.jetpackreleasetracker.helpers.Const
 import name.lmj0011.jetpackreleasetracker.helpers.factories.ProjectSyncViewModelFactory
-import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
-import timber.log.Timber
 
 class CreateProjectSyncFragment : Fragment()
 {
@@ -67,6 +60,8 @@ class CreateProjectSyncFragment : Fragment()
             }
         })
 
+        binding.pickDepsListTxtImageButton.setOnClickListener { openDepsTxtFile() }
+
         mainActivity.hideFab()
 
         return binding.root
@@ -88,6 +83,19 @@ class CreateProjectSyncFragment : Fragment()
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == Const.PICK_DEPS_LIST_TXT) {
+            // The result data contains a URI for the document or directory that
+            // the user selected.
+            data?.data?.let {
+                binding.depsUrlEditText.setText(it.toString())
+            }
+        }
+
+    }
+
     private fun saveButtonOnClickListener(v: View) {
         var projectName = binding.projectNameEditText.text.toString()
         var projectDepListUrl = binding.depsUrlEditText.text.toString()
@@ -100,5 +108,14 @@ class CreateProjectSyncFragment : Fragment()
         binding.createProjectSyncCircularProgressButton.isEnabled = false
         binding.createProjectSyncCircularProgressButton.startAnimation()
 
+    }
+
+    private fun openDepsTxtFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "text/plain"
+        }
+
+        startActivityForResult(intent, Const.PICK_DEPS_LIST_TXT)
     }
 }

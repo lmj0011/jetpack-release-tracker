@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="URL to Dependencies List"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/pickDepsListTxtImageButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/projectNameEditText" />
 
@@ -61,6 +61,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/depsUrlEditText"
             app:spinning_bar_color="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/pickDepsListTxtImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/depsUrlEditText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/depsUrlEditText"
+            app:srcCompat="@drawable/ic_baseline_insert_drive_file_24" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

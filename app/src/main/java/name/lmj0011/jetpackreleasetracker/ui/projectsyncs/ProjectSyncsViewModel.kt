@@ -1,6 +1,9 @@
 package name.lmj0011.jetpackreleasetracker.ui.projectsyncs
 
 import android.app.Application
+import android.net.Uri
+import android.util.Patterns
+import androidx.core.net.toFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.github.kittinunf.fuel.Fuel
@@ -8,6 +11,7 @@ import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.*
+import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.database.ProjectSync
 import name.lmj0011.jetpackreleasetracker.database.ProjectSyncDao
 import timber.log.Timber
@@ -108,11 +112,22 @@ class ProjectSyncsViewModel(
         project.upToDateCount = 0
 
         return uiScope.launch(Dispatchers.IO) {
-            lateinit var res: ResponseResultOf<ByteArray>
+            var res: ResponseResultOf<ByteArray>? = null
+            var localByteArray: ByteArray? = null
 
             try {
-                // ref: https://github.com/kittinunf/fuel/blob/master/fuel/README.md#blocking-responses
-                res = Fuel.get(project.depsListUrl).response()
+                Timber.d("project.depsListUrl: ${project.depsListUrl}")
+
+                if(Patterns.WEB_URL.matcher(project.depsListUrl).matches()) {
+                    // ref: https://github.com/kittinunf/fuel/blob/master/fuel/README.md#blocking-responses
+                    res = Fuel.get(project.depsListUrl).response()
+                    Timber.d("path is a web url")
+                } else {
+                    val inputStream = getApplication<Application>()
+                        .applicationContext.contentResolver.openInputStream(Uri.parse(project.depsListUrl))
+                    localByteArray = inputStream?.readBytes()
+                    Timber.d("path is NOT a web url")
+                }
             } catch (ex: Throwable) {
                 errorMessages.postValue(ex.message)
                 return@launch
@@ -120,72 +135,77 @@ class ProjectSyncsViewModel(
 
             val artifacts = database.getAllAndroidXArtifacts()
 
-            val (data, error) = res.third
-
-            error?.let { err -> errorMessages.postValue(err.message) }
-
             when {
-                data is ByteArray -> {
-                    val str = String(data)
-                    val strLines = str.lines()
-                    var resultProjectDepsMap: MutableMap<String, MutableList<String>> = mutableMapOf()
-
-                    strLines.forEach {
-                        val lib = it.split(':')
-                        if (lib.size == 3) { // should only be 3 elements
-                            val groupId = lib[0]
-                            val artifactId = lib[1]
-                            val versionId = lib[2]
-
-                            if(resultProjectDepsMap["$groupId"] == null) resultProjectDepsMap["$groupId"] = mutableListOf()
-
-                            artifacts.find { artifact ->
-                                artifact.name == "$groupId:$artifactId"
-                            }?.let { artifact ->
-
-                                val str = if(project.stableVersionsOnly) {
-                                    if (Semver(artifact.latestStableVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
-                                        project.outdatedCount = project.outdatedCount.plus(1)
-                                        "$artifactId:$versionId -> ${artifact.latestStableVersion}\n"
-                                    } else {
-                                        project.upToDateCount = project.upToDateCount.plus(1)
-                                        "$artifactId:$versionId\n"
-                                    }
-                                } else {
-                                    if (Semver(artifact.latestVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
-                                        project.outdatedCount = project.outdatedCount.plus(1)
-                                        "$artifactId:$versionId -> ${artifact.latestVersion}\n"
-                                    }else {
-                                        project.upToDateCount = project.upToDateCount.plus(1)
-                                        "$artifactId:$versionId\n"
-                                    }
-                                }
-
-                                resultProjectDepsMap["$groupId"]?.add(str)
-                            }
-
-
-                        }
-                    }
-
-                    // remove non-androidx entries
-                    val keysToDelete = resultProjectDepsMap.keys.filter { str ->
-                        !str.contains("androidx.")
-                    }
-
-                    keysToDelete.forEach { str ->
-                        resultProjectDepsMap.remove(str)
-                    }
-
-                    projectDepsMap.postValue(resultProjectDepsMap)
+                res?.third?.component1() is ByteArray -> {
+                    val data = res.third.component1()!!
+                    parseDependencyList(String(data), project, artifacts)
                 }
-                error is FuelError -> {
-                    error.exception?.let { Timber.e(it) }
+                localByteArray is ByteArray -> {
+                    parseDependencyList(String(localByteArray), project, artifacts)
+                }
+                res?.third?.component2() is FuelError -> {
+                    val error = res.third.component2()!!
+                    errorMessages.postValue(error.message)
+                    error.exception.let { Timber.e(it) }
                 }
             }
 
             this@ProjectSyncsViewModel.database.upsert(project)
         }
+    }
+
+    private fun parseDependencyList(depsList: String, project: ProjectSync, artifacts: MutableList<AndroidXArtifact>) {
+        val strLines = depsList.lines()
+        var resultProjectDepsMap: MutableMap<String, MutableList<String>> = mutableMapOf()
+
+        strLines.forEach {
+            val lib = it.split(':')
+            if (lib.size == 3) { // should only be 3 elements
+                val groupId = lib[0]
+                val artifactId = lib[1]
+                val versionId = lib[2]
+
+                if(resultProjectDepsMap["$groupId"] == null) resultProjectDepsMap["$groupId"] = mutableListOf()
+
+                artifacts.find { artifact ->
+                    artifact.name == "$groupId:$artifactId"
+                }?.let { artifact ->
+
+                    val str = if(project.stableVersionsOnly) {
+                        if (Semver(artifact.latestStableVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
+                            project.outdatedCount = project.outdatedCount.plus(1)
+                            "$artifactId:$versionId -> ${artifact.latestStableVersion}\n"
+                        } else {
+                            project.upToDateCount = project.upToDateCount.plus(1)
+                            "$artifactId:$versionId\n"
+                        }
+                    } else {
+                        if (Semver(artifact.latestVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
+                            project.outdatedCount = project.outdatedCount.plus(1)
+                            "$artifactId:$versionId -> ${artifact.latestVersion}\n"
+                        }else {
+                            project.upToDateCount = project.upToDateCount.plus(1)
+                            "$artifactId:$versionId\n"
+                        }
+                    }
+
+                    resultProjectDepsMap["$groupId"]?.add(str)
+                }
+
+
+            }
+        }
+
+        // remove non-androidx entries
+        val keysToDelete = resultProjectDepsMap.keys.filter { str ->
+            !str.contains("androidx.")
+        }
+
+        keysToDelete.forEach { str ->
+            resultProjectDepsMap.remove(str)
+        }
+
+        projectDepsMap.postValue(resultProjectDepsMap)
     }
 
     fun test() {
