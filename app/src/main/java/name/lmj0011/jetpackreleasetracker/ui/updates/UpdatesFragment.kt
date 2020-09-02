@@ -105,8 +105,6 @@ class UpdatesFragment : Fragment(),
             }
         }
 
-        mainActivity.hideFab()
-
         return binding.root
     }
 
