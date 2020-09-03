@@ -13,8 +13,6 @@ class UpdatesViewModel(
     val database: AndroidXArtifactUpdateDao,
     application: Application
 ) : AndroidViewModel(application) {
-    private var viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
 
     private val _text = MutableLiveData<String>().apply {
         value = "This is dashboard Fragment"
@@ -24,8 +22,4 @@ class UpdatesViewModel(
 
     var artifactUpdates = database.getAllAndroidXArtifactUpdates()
 
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
 }

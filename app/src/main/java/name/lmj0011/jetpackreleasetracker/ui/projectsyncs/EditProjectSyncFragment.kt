@@ -6,61 +6,47 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.*
 import android.widget.TextView
-import androidx.appcompat.widget.SearchView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
-import br.com.simplepass.loadingbutton.presentation.State
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.database.ProjectSync
-import name.lmj0011.jetpackreleasetracker.databinding.FragmentCreateProjectSyncBinding
 import name.lmj0011.jetpackreleasetracker.databinding.FragmentEditProjectSyncBinding
-import name.lmj0011.jetpackreleasetracker.databinding.FragmentProjectSyncsBinding
-import name.lmj0011.jetpackreleasetracker.helpers.Util
-import name.lmj0011.jetpackreleasetracker.helpers.adapters.ProjectSyncListAdapter
 import name.lmj0011.jetpackreleasetracker.helpers.factories.ProjectSyncViewModelFactory
-import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
-import timber.log.Timber
 
-class EditProjectSyncFragment : Fragment()
-{
+class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
 
     private lateinit var binding: FragmentEditProjectSyncBinding
-    private lateinit var mainActivity: MainActivity
-    private lateinit var projectSyncsViewModel: ProjectSyncsViewModel
+    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> { ProjectSyncViewModelFactory(AppDatabase.getInstance(requireActivity().application).projectSyncDao, requireActivity().application) }
     private var project: ProjectSync? = null
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_edit_project_sync, container, false)
-        mainActivity = activity as MainActivity
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
 
-        val application = requireNotNull(this.activity).application
-        val dataSource = AppDatabase.getInstance(application).projectSyncDao
-        val viewModelFactory = ProjectSyncViewModelFactory(dataSource, application)
-        val dynamicallyAddedDepTextViews = mutableListOf<TextView>()
-        projectSyncsViewModel = ViewModelProvider(this, viewModelFactory).get(ProjectSyncsViewModel::class.java)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupBinding(view)
+        setupAlertDialog()
+        setupObservers()
+    }
 
+    private fun setupBinding(view:View){
+        binding = FragmentEditProjectSyncBinding.bind(view)
         binding.lifecycleOwner = this
-        
         binding.editProjectSaveCircularProgressButton.setOnClickListener(this::saveButtonOnClickListener)
-        
+    }
+
+    private fun setupAlertDialog(){
         binding.editProjectDeleteCircularProgressButton.setOnClickListener { _ ->
-            MaterialAlertDialogBuilder(mainActivity)
+            MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete this project?")
                 .setPositiveButton("Yes") { _, _ ->
                     project?.let { projectSyncsViewModel.deleteProject(it) }
@@ -69,13 +55,19 @@ class EditProjectSyncFragment : Fragment()
                 .setNegativeButton("No") {_,_ -> }
                 .show()
         }
+    }
+
+    private fun setupObservers(){
+        projectSyncsViewModel.setProjectSync(requireArguments().getLong(getString(R.string.key_project_sync_id_bundle_property)))
+
+        val dynamicallyAddedDepTextViews = mutableListOf<TextView>()
 
         projectSyncsViewModel.successMessages.observe(viewLifecycleOwner, Observer {
-            mainActivity.showToastMessage(it)
+            (requireActivity() as MainActivity).showToastMessage(it)
         })
 
         projectSyncsViewModel.errorMessages.observe(viewLifecycleOwner, Observer {
-            mainActivity.showToastMessage(it)
+            (requireActivity() as MainActivity).showToastMessage(it)
         })
 
         projectSyncsViewModel.projectSync.observe(viewLifecycleOwner, Observer {
@@ -94,7 +86,7 @@ class EditProjectSyncFragment : Fragment()
             it.forEach { mEntry ->
                 val textView = TextView(context)
                 textView.setTypeface(null, Typeface.BOLD)
-                injectDependencyIntoView(textView, attachToSiblingView, parentLayout, "${mEntry.key}")
+                injectDependencyIntoView(textView, attachToSiblingView, parentLayout, mEntry.key)
                 attachToSiblingView = textView
                 dynamicallyAddedDepTextViews.add(textView)
 
@@ -108,21 +100,14 @@ class EditProjectSyncFragment : Fragment()
                 }
             }
         })
-
-        projectSyncsViewModel.setProjectSync(requireArguments().getLong(getString(R.string.key_project_sync_id_bundle_property)))
-
-        mainActivity.hideFab()
-
-        return binding.root
     }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             android.R.id.home -> {
                 findNavController().navigate(R.id.navigation_project_syncs)
-                true
             }
-
         }
         return super.onOptionsItemSelected(item)
     }
@@ -152,7 +137,7 @@ class EditProjectSyncFragment : Fragment()
         c.applyTo(parentLayout)
     }
 
-    private fun saveButtonOnClickListener(v: View? = null) {
+    private fun saveButtonOnClickListener(v: View) {
         project?.let {
             it.name = binding.projectNameEditText.text.toString()
             it.depsListUrl = binding.depsUrlEditText.text.toString()
@@ -162,6 +147,6 @@ class EditProjectSyncFragment : Fragment()
         }
 
         binding.editProjectSaveCircularProgressButton.startAnimation()
-        mainActivity.hideKeyBoard(binding.editProjectSaveCircularProgressButton)
+        (requireActivity() as MainActivity).hideKeyBoard(binding.editProjectSaveCircularProgressButton)
     }
 }

@@ -49,6 +49,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_updates -> {
                     hideFab()
                 }
+
+                R.id.createProjectSyncFragment -> {
+                    hideFab()
+                }
+
+                R.id.editProjectSyncFragment -> {
+                    hideFab()
+                }
             }
         }
     }
