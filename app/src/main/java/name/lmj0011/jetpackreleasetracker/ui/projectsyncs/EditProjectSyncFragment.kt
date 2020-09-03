@@ -23,7 +23,12 @@ import name.lmj0011.jetpackreleasetracker.helpers.factories.ProjectSyncViewModel
 class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
 
     private lateinit var binding: FragmentEditProjectSyncBinding
-    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> { ProjectSyncViewModelFactory(AppDatabase.getInstance(requireActivity().application).projectSyncDao, requireActivity().application) }
+    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> {
+        ProjectSyncViewModelFactory(
+            AppDatabase.getInstance(requireActivity().application).projectSyncDao,
+            requireActivity().application
+        )
+    }
     private var project: ProjectSync? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,13 +43,13 @@ class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
         setupObservers()
     }
 
-    private fun setupBinding(view:View){
+    private fun setupBinding(view: View) {
         binding = FragmentEditProjectSyncBinding.bind(view)
         binding.lifecycleOwner = this
         binding.editProjectSaveCircularProgressButton.setOnClickListener(this::saveButtonOnClickListener)
     }
 
-    private fun setupAlertDialog(){
+    private fun setupAlertDialog() {
         binding.editProjectDeleteCircularProgressButton.setOnClickListener { _ ->
             MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Delete this project?")
@@ -52,12 +57,12 @@ class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
                     project?.let { projectSyncsViewModel.deleteProject(it) }
                     findNavController().navigate(R.id.navigation_project_syncs)
                 }
-                .setNegativeButton("No") {_,_ -> }
+                .setNegativeButton("No") { _, _ -> }
                 .show()
         }
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         projectSyncsViewModel.setProjectSync(requireArguments().getLong(getString(R.string.key_project_sync_id_bundle_property)))
 
         val dynamicallyAddedDepTextViews = mutableListOf<TextView>()
@@ -92,9 +97,14 @@ class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
 
                 mEntry.value.forEach { artifactStr ->
                     val textView = TextView(context)
-                    if(artifactStr.contains("->"))  textView.setTextColor(Color.parseColor("#FFE8BB59"))
+                    if (artifactStr.contains("->")) textView.setTextColor(Color.parseColor("#FFE8BB59"))
 
-                    injectDependencyIntoView(textView, attachToSiblingView, parentLayout, "\t\t$artifactStr")
+                    injectDependencyIntoView(
+                        textView,
+                        attachToSiblingView,
+                        parentLayout,
+                        "\t\t$artifactStr"
+                    )
                     attachToSiblingView = textView
                     dynamicallyAddedDepTextViews.add(textView)
                 }
@@ -104,7 +114,7 @@ class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             android.R.id.home -> {
                 findNavController().navigate(R.id.navigation_project_syncs)
             }
@@ -120,7 +130,12 @@ class EditProjectSyncFragment : Fragment(R.layout.fragment_edit_project_sync) {
         }
     }
 
-    private fun injectDependencyIntoView(view: TextView, attachToView: TextView, parentLayout: ConstraintLayout, depStr: String) {
+    private fun injectDependencyIntoView(
+        view: TextView,
+        attachToView: TextView,
+        parentLayout: ConstraintLayout,
+        depStr: String
+    ) {
         val c = ConstraintSet()
 
         view.id = View.generateViewId()

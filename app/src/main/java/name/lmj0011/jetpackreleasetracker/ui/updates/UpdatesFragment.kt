@@ -22,7 +22,12 @@ import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerV
 class UpdatesFragment : Fragment(R.layout.fragment_updates), SearchableRecyclerView {
 
     private lateinit var binding: FragmentUpdatesBinding
-    private val updatesViewModel by viewModels<UpdatesViewModel> { DashBoardViewModelFactory(AppDatabase.getInstance(requireActivity().application).androidXArtifactUpdateDao, requireActivity().application) }
+    private val updatesViewModel by viewModels<UpdatesViewModel> {
+        DashBoardViewModelFactory(
+            AppDatabase.getInstance(requireActivity().application).androidXArtifactUpdateDao,
+            requireActivity().application
+        )
+    }
     private lateinit var listAdapter: AndroidXArtifactUpdateListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,24 +43,30 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), SearchableRecyclerV
         setupSearchView()
     }
 
-    private fun setupBinding(view:View){
+    private fun setupBinding(view: View) {
         binding = FragmentUpdatesBinding.bind(view)
-        binding.androidXArtifactUpdateList.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+        binding.androidXArtifactUpdateList.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
         binding.dashboardViewModel = updatesViewModel
         binding.lifecycleOwner = this
     }
 
-    private fun setupAdapter(){
-        listAdapter = AndroidXArtifactUpdateListAdapter(AndroidXArtifactUpdateListAdapter.AndroidXArtifactUpdateListener {
-            if(!it.releasePageUrl.isBlank()) {
-                Util.openUrlInWebBrowser(requireActivity() as MainActivity, it.releasePageUrl)
-            }
+    private fun setupAdapter() {
+        listAdapter =
+            AndroidXArtifactUpdateListAdapter(AndroidXArtifactUpdateListAdapter.AndroidXArtifactUpdateListener {
+                if (!it.releasePageUrl.isBlank()) {
+                    Util.openUrlInWebBrowser(requireActivity() as MainActivity, it.releasePageUrl)
+                }
 
-        })
+            })
         binding.androidXArtifactUpdateList.adapter = listAdapter
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         updatesViewModel.artifactUpdates.observe(viewLifecycleOwner, Observer {
             listAdapter.submitList(it)
             listAdapter.notifyDataSetChanged()
@@ -66,8 +77,8 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), SearchableRecyclerV
         })
     }
 
-    private fun setupSearchView(){
-        binding.updatesSearchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+    private fun setupSearchView() {
+        binding.updatesSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -91,14 +102,14 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), SearchableRecyclerV
         }
 
         binding.updatesSearchView.setOnQueryTextFocusChangeListener { view, hasFocus ->
-            if(!hasFocus){
+            if (!hasFocus) {
                 binding.updatesSearchView.setQuery("", true)
                 toggleSearch(requireActivity() as MainActivity, binding.updatesSearchView, false)
             }
         }
     }
 
-    private fun submitListToAdapter (list: MutableList<AndroidXArtifactUpdate>) {
+    private fun submitListToAdapter(list: MutableList<AndroidXArtifactUpdate>) {
         listAdapter.submitList(list)
         listAdapter.notifyDataSetChanged()
     }
@@ -118,7 +129,10 @@ class UpdatesFragment : Fragment(R.layout.fragment_updates), SearchableRecyclerV
                 true
             }
             R.id.action_updates_archive -> {
-                Util.openUrlInWebBrowser(requireActivity() as MainActivity, getString(R.string.jetpack_release_archive_url))
+                Util.openUrlInWebBrowser(
+                    requireActivity() as MainActivity,
+                    getString(R.string.jetpack_release_archive_url)
+                )
                 true
             }
             else -> super.onOptionsItemSelected(item)

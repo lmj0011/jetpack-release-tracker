@@ -22,7 +22,12 @@ import timber.log.Timber
 class CreateProjectSyncFragment : Fragment(R.layout.fragment_create_project_sync) {
 
     private lateinit var binding: FragmentCreateProjectSyncBinding
-    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> { ProjectSyncViewModelFactory(AppDatabase.getInstance(requireActivity().application).projectSyncDao, requireActivity().application) }
+    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> {
+        ProjectSyncViewModelFactory(
+            AppDatabase.getInstance(requireActivity().application).projectSyncDao,
+            requireActivity().application
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,13 +40,13 @@ class CreateProjectSyncFragment : Fragment(R.layout.fragment_create_project_sync
         setupObservers()
     }
 
-    private fun setupBinding(view:View){
+    private fun setupBinding(view: View) {
         binding = FragmentCreateProjectSyncBinding.bind(view)
         binding.lifecycleOwner = this
         binding.createProjectSyncCircularProgressButton.setOnClickListener(this::saveButtonOnClickListener)
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         projectSyncsViewModel.errorMessages.observe(viewLifecycleOwner, Observer {
             binding.createProjectSyncCircularProgressButton.revertAnimation()
             binding.createProjectSyncCircularProgressButton.isEnabled = true
@@ -62,7 +67,7 @@ class CreateProjectSyncFragment : Fragment(R.layout.fragment_create_project_sync
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             android.R.id.home -> {
                 findNavController().navigate(R.id.navigation_project_syncs)
             }
@@ -70,12 +75,12 @@ class CreateProjectSyncFragment : Fragment(R.layout.fragment_create_project_sync
         return super.onOptionsItemSelected(item)
     }
 
-    private fun saveButtonOnClickListener(v:View) {
+    private fun saveButtonOnClickListener(v: View) {
         var projectName = binding.projectNameEditText.text.toString()
         var projectDepListUrl = binding.depsUrlEditText.text.toString()
 
-        if(projectName.isBlank()) projectName = "[No Name]"
-        if(projectDepListUrl.isBlank()) projectDepListUrl = ""
+        if (projectName.isBlank()) projectName = "[No Name]"
+        if (projectDepListUrl.isBlank()) projectDepListUrl = ""
 
         projectSyncsViewModel.insertProjectSync(projectName, projectDepListUrl)
 

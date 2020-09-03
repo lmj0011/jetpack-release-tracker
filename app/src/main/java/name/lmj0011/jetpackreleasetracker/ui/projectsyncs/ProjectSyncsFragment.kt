@@ -31,7 +31,12 @@ import timber.log.Timber
 class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), SearchableRecyclerView {
 
     private lateinit var binding: FragmentProjectSyncsBinding
-    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> { ProjectSyncViewModelFactory(AppDatabase.getInstance(requireActivity().application).projectSyncDao, requireActivity().application) }
+    private val projectSyncsViewModel by viewModels<ProjectSyncsViewModel> {
+        ProjectSyncViewModelFactory(
+            AppDatabase.getInstance(requireActivity().application).projectSyncDao,
+            requireActivity().application
+        )
+    }
     private lateinit var listAdapter: ProjectSyncListAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,17 +49,25 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
         setupFabWithListener()
     }
 
-    private fun setupBinding(view:View){
+    private fun setupBinding(view: View) {
         binding = FragmentProjectSyncsBinding.bind(view)
-        binding.projectSyncList.addItemDecoration(DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL))
+        binding.projectSyncList.addItemDecoration(
+            DividerItemDecoration(
+                requireActivity(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
         binding.projectSyncsViewModel = projectSyncsViewModel
         binding.lifecycleOwner = this
         binding.learnMoreButton.setOnClickListener {
-            Util.openUrlInWebBrowser(requireActivity() as MainActivity, getString(R.string.project_syncs_learn_more_url))
+            Util.openUrlInWebBrowser(
+                requireActivity() as MainActivity,
+                getString(R.string.project_syncs_learn_more_url)
+            )
         }
     }
 
-    private fun setupAdapter(){
+    private fun setupAdapter() {
         listAdapter = ProjectSyncListAdapter(ProjectSyncListAdapter.ProjectSyncListener {
             val bundle = bundleOf(getString(R.string.key_project_sync_id_bundle_property) to it.id)
             findNavController().navigate(
@@ -65,7 +78,7 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
         binding.projectSyncList.adapter = listAdapter
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         projectSyncsViewModel.projectSyncs.observe(viewLifecycleOwner, Observer {
             listAdapter.submitList(it)
             listAdapter.notifyDataSetChanged()
@@ -80,8 +93,9 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
         })
     }
 
-    private fun setupSearchView(){
-        binding.projectSyncsSearchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+    private fun setupSearchView() {
+        binding.projectSyncsSearchView.setOnQueryTextListener(object :
+            SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -105,15 +119,19 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
         }
 
         binding.projectSyncsSearchView.setOnQueryTextFocusChangeListener { _, hasFocus ->
-            if(!hasFocus){
+            if (!hasFocus) {
                 binding.projectSyncsSearchView.setQuery("", true)
-                toggleSearch(requireActivity() as MainActivity, binding.projectSyncsSearchView, false)
+                toggleSearch(
+                    requireActivity() as MainActivity,
+                    binding.projectSyncsSearchView,
+                    false
+                )
             }
         }
 
     }
 
-    private fun setupSwipeToRefresh(){
+    private fun setupSwipeToRefresh() {
         binding.swipeRefresh.setOnRefreshListener {
             val projectSyncAllWorkRequest = OneTimeWorkRequestBuilder<ProjectSyncAllWorker>()
                 .addTag(requireContext().getString(R.string.project_sync_all_one_time_worker_tag))
@@ -132,19 +150,20 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
                     }
                 })
 
-            WorkManager.getInstance(requireActivity().application).enqueue(projectSyncAllWorkRequest)
+            WorkManager.getInstance(requireActivity().application)
+                .enqueue(projectSyncAllWorkRequest)
 
             binding.swipeRefresh.isRefreshing = false
             (requireActivity() as MainActivity).showToastMessage(requireContext().getString(R.string.toast_message_syncing_projects))
         }
     }
 
-    private fun submitListToAdapter (list: MutableList<ProjectSync>) {
+    private fun submitListToAdapter(list: MutableList<ProjectSync>) {
         listAdapter.submitList(list)
         listAdapter.notifyDataSetChanged()
     }
 
-    private fun setupFabWithListener(){
+    private fun setupFabWithListener() {
         (requireActivity() as MainActivity).showFabAndSetListener({
             findNavController().navigate(
                 ProjectSyncsFragmentDirections.actionNavigationProjectSyncsToCreateProjectSyncFragment()
@@ -163,11 +182,18 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_updates_search -> {
-                toggleSearch(requireActivity() as MainActivity, binding.projectSyncsSearchView, true)
+                toggleSearch(
+                    requireActivity() as MainActivity,
+                    binding.projectSyncsSearchView,
+                    true
+                )
                 true
             }
             R.id.action_updates_archive -> {
-                Util.openUrlInWebBrowser(requireActivity() as MainActivity, getString(R.string.jetpack_release_archive_url))
+                Util.openUrlInWebBrowser(
+                    requireActivity() as MainActivity,
+                    getString(R.string.jetpack_release_archive_url)
+                )
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -29,20 +29,20 @@ class ProjectSyncsViewModel(
     // A disgraceful hack to force Livedata (ie. projectSyncs) to refresh itself, could probably
     // do this more gracefully using a Repository.
     fun refreshProjectSyncs() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             var staleProjectSync: ProjectSync?
 
             do {
                 delay(1000L)
-                staleProjectSync = withContext(Dispatchers.IO) { database.getAllProjectSyncsForWorker().firstOrNull() }
+                staleProjectSync = database.getAllProjectSyncsForWorker().firstOrNull()
             } while (staleProjectSync == null)
 
             Timber.d("staleProjectSync: $staleProjectSync")
 
-            staleProjectSync.let {it1 ->
-                val freshProjectSync = withContext(Dispatchers.IO) { database.get(it1.id) }
+            staleProjectSync.let { it1 ->
+                val freshProjectSync = database.get(it1.id)
                 freshProjectSync?.let { it2 ->
-                    withContext(Dispatchers.IO) { database.update(it2) }
+                    database.update(it2)
                 }
             }
         }
@@ -57,7 +57,6 @@ class ProjectSyncsViewModel(
                 name = pName
                 depsListUrl = pDepListUrl
             }
-
             synchronizeProject(project).join()
         }
 
@@ -67,25 +66,19 @@ class ProjectSyncsViewModel(
         viewModelScope.launch {
             synchronizeProject(project).join()
             successMessages.postValue("${project.name} Saved")
-
         }
-
     }
 
     fun deleteProject(project: ProjectSync) {
-        viewModelScope.launch {
-           database.deleteByProjectSyncId(project.id)
+        viewModelScope.launch(Dispatchers.IO) {
+            database.deleteByProjectSyncId(project.id)
         }
     }
 
     fun setProjectSync(id: Long) {
         viewModelScope.launch {
-            val project = withContext(Dispatchers.IO) {
-                database.get(id)
-            }
-
+            val project = database.get(id)
             projectSync.postValue(project)
-
             project?.let {
                 synchronizeProject(project).join()
             }
@@ -118,7 +111,8 @@ class ProjectSyncsViewModel(
                 data is ByteArray -> {
                     val str = String(data)
                     val strLines = str.lines()
-                    val resultProjectDepsMap: MutableMap<String, MutableList<String>> = mutableMapOf()
+                    val resultProjectDepsMap: MutableMap<String, MutableList<String>> =
+                        mutableMapOf()
 
                     strLines.forEach {
                         val lib = it.split(':')
@@ -127,14 +121,19 @@ class ProjectSyncsViewModel(
                             val artifactId = lib[1]
                             val versionId = lib[2]
 
-                            if(resultProjectDepsMap[groupId] == null) resultProjectDepsMap[groupId] = mutableListOf()
+                            if (resultProjectDepsMap[groupId] == null) resultProjectDepsMap[groupId] =
+                                mutableListOf()
 
                             artifacts.find { artifact ->
                                 artifact.name == "$groupId:$artifactId"
                             }?.let { artifact ->
 
-                                val str = if(project.stableVersionsOnly) {
-                                    if (Semver(artifact.latestStableVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
+                                val str = if (project.stableVersionsOnly) {
+                                    if (Semver(
+                                            artifact.latestStableVersion,
+                                            Semver.SemverType.LOOSE
+                                        ).isGreaterThan(versionId)
+                                    ) {
                                         project.outdatedCount = project.outdatedCount.plus(1)
                                         "$artifactId:$versionId -> ${artifact.latestStableVersion}\n"
                                     } else {
@@ -142,10 +141,14 @@ class ProjectSyncsViewModel(
                                         "$artifactId:$versionId\n"
                                     }
                                 } else {
-                                    if (Semver(artifact.latestVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
+                                    if (Semver(
+                                            artifact.latestVersion,
+                                            Semver.SemverType.LOOSE
+                                        ).isGreaterThan(versionId)
+                                    ) {
                                         project.outdatedCount = project.outdatedCount.plus(1)
                                         "$artifactId:$versionId -> ${artifact.latestVersion}\n"
-                                    }else {
+                                    } else {
                                         project.upToDateCount = project.upToDateCount.plus(1)
                                         "$artifactId:$versionId\n"
                                     }
@@ -192,7 +195,7 @@ class ProjectSyncsViewModel(
             outdatedCount = 0
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             database.actualInsertAll(mutableListOf(proj1, proj2))
         }
     }

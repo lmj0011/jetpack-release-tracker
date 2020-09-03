@@ -28,9 +28,14 @@ import name.lmj0011.jetpackreleasetracker.helpers.workers.ProjectSyncAllWorker
 
 class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyclerView {
 
-    private lateinit var binding:FragmentLibrariesBinding
+    private lateinit var binding: FragmentLibrariesBinding
     private lateinit var sharedPreferences: SharedPreferences
-    private val librariesViewModel by viewModels<LibrariesViewModel> { LibrariesViewModelFactory(AppDatabase.getInstance(requireActivity().application).androidXArtifactDao,requireActivity().application) }
+    private val librariesViewModel by viewModels<LibrariesViewModel> {
+        LibrariesViewModelFactory(
+            AppDatabase.getInstance(requireActivity().application).androidXArtifactDao,
+            requireActivity().application
+        )
+    }
     private lateinit var listAdapter: AndroidXLibraryListAdapter
     private lateinit var filterMenuItem: MenuItem
 
@@ -51,27 +56,33 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         setupSwipeToRefresh()
     }
 
-    private fun setupBinding(view:View){
+    private fun setupBinding(view: View) {
         binding = FragmentLibrariesBinding.bind(view)
         binding.lifecycleOwner = this
         binding.homeViewModel = librariesViewModel
     }
 
-    private fun setupAdapter(){
+    private fun setupAdapter() {
         listAdapter = AndroidXLibraryListAdapter(
             AndroidXLibraryListAdapter.AndroidXLibraryListener {},
             AndroidXLibraryListAdapter.AndroidXLibraryStarListener {
                 // make a copy since original value can't reliably be modified; ref: https://stackoverflow.com/a/51001329/2445763
-                val starredSet = (sharedPreferences.getStringSet(this.getString(R.string.pref_key_starred_libraries), mutableSetOf<String>()) as MutableSet<String>).toMutableSet()
+                val starredSet = (sharedPreferences.getStringSet(
+                    this.getString(R.string.pref_key_starred_libraries),
+                    mutableSetOf<String>()
+                ) as MutableSet<String>).toMutableSet()
 
-                if(starredSet.contains(it.packageName)){
+                if (starredSet.contains(it.packageName)) {
                     starredSet.remove(it.packageName)
                 } else {
                     starredSet.add(it.packageName)
                 }
 
-                sharedPreferences.edit{
-                    putStringSet(requireContext().getString(R.string.pref_key_starred_libraries), starredSet)
+                sharedPreferences.edit {
+                    putStringSet(
+                        requireContext().getString(R.string.pref_key_starred_libraries),
+                        starredSet
+                    )
                     apply()
                     this@LibrariesFragment.refreshListAdapter()
                 }
@@ -79,8 +90,8 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         )
     }
 
-    private fun setupSearchView(){
-        binding.librariesSearchView.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+    private fun setupSearchView() {
+        binding.librariesSearchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -92,7 +103,11 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         })
 
         binding.librariesSearchView.setOnCloseListener {
-            this@LibrariesFragment.toggleSearch(requireActivity() as MainActivity, binding.librariesSearchView, false)
+            this@LibrariesFragment.toggleSearch(
+                requireActivity() as MainActivity,
+                binding.librariesSearchView,
+                false
+            )
             false
         }
 
@@ -108,12 +123,17 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         }
     }
 
-    private fun setupRecyclerView(){
-        binding.androidXLibraryList.addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+    private fun setupRecyclerView() {
+        binding.androidXLibraryList.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
         binding.androidXLibraryList.adapter = listAdapter
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         librariesViewModel.artifacts.observe(viewLifecycleOwner, Observer {
 
             // if it's always empty then there's a problem with the network or library source
@@ -127,7 +147,7 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
     }
 
     private fun checkForTestMode() {
-        if(!resources.getBoolean(R.bool.DEBUG_MODE)) {
+        if (!resources.getBoolean(R.bool.DEBUG_MODE)) {
             binding.testButton.visibility = View.GONE
         }
     }
@@ -161,8 +181,11 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         WorkManager.getInstance(requireContext()).enqueue(libraryRefreshWorkerRequest)
     }
 
-    private fun refreshListAdapter (query: String? = null) {
-        val hasStarredFilter = sharedPreferences.getBoolean(requireContext().getString(R.string.pref_key_starred_filter), false)
+    private fun refreshListAdapter(query: String? = null) {
+        val hasStarredFilter = sharedPreferences.getBoolean(
+            requireContext().getString(R.string.pref_key_starred_filter),
+            false
+        )
         var list = AndroidXLibraryDataset.data.toMutableList()
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -171,7 +194,7 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
             }
 
             query?.let { str ->
-               list = withContext(Dispatchers.Default) {
+                list = withContext(Dispatchers.Default) {
                     listAdapter.filterBySearchQuery(str, list)
                 }
             }
@@ -189,7 +212,10 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         filterMenuItem = menu.findItem(R.id.action_libraries_filter)
-        val hasStarredFilter = sharedPreferences.getBoolean(requireContext().getString(R.string.pref_key_starred_filter), false)
+        val hasStarredFilter = sharedPreferences.getBoolean(
+            requireContext().getString(R.string.pref_key_starred_filter),
+            false
+        )
 
         if (hasStarredFilter) {
             filterMenuItem.setIcon(R.drawable.ic_baseline_selected_filter_list_24)
@@ -202,11 +228,18 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_libraries_search -> {
-                this@LibrariesFragment.toggleSearch(requireActivity() as MainActivity, binding.librariesSearchView, true)
+                this@LibrariesFragment.toggleSearch(
+                    requireActivity() as MainActivity,
+                    binding.librariesSearchView,
+                    true
+                )
                 true
             }
             R.id.action_libraries_filter -> {
-                val hasStarredFilter = sharedPreferences.getBoolean(requireContext().getString(R.string.pref_key_starred_filter), false)
+                val hasStarredFilter = sharedPreferences.getBoolean(
+                    requireContext().getString(R.string.pref_key_starred_filter),
+                    false
+                )
                 var checkedItem = -1
                 if (hasStarredFilter) checkedItem = 0
 
@@ -215,10 +248,16 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
                     .setSingleChoiceItems(arrayOf("Starred"), checkedItem) { dialog, which ->
                         // Respond to item chosen
                         if (hasStarredFilter) {
-                            sharedPreferences.edit().putBoolean(requireContext().getString(R.string.pref_key_starred_filter), false).apply()
+                            sharedPreferences.edit().putBoolean(
+                                requireContext().getString(R.string.pref_key_starred_filter),
+                                false
+                            ).apply()
                             filterMenuItem.setIcon(R.drawable.ic_baseline_filter_list_24)
                         } else {
-                            sharedPreferences.edit().putBoolean(requireContext().getString(R.string.pref_key_starred_filter), true).apply()
+                            sharedPreferences.edit().putBoolean(
+                                requireContext().getString(R.string.pref_key_starred_filter),
+                                true
+                            ).apply()
                             filterMenuItem.setIcon(R.drawable.ic_baseline_selected_filter_list_24)
                         }
                         this@LibrariesFragment.refreshListAdapter()

@@ -19,7 +19,5 @@ class UpdatesViewModel(
     }
 
     val text: LiveData<String> = _text
-
     var artifactUpdates = database.getAllAndroidXArtifactUpdates()
-
 }
