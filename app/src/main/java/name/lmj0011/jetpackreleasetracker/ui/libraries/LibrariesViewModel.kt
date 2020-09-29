@@ -8,6 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.vdurmont.semver4j.Semver
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
@@ -15,7 +16,6 @@ import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactDao
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifactUpdate
-import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.AndroidXReleasePuller
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
@@ -26,46 +26,39 @@ class LibrariesViewModel(
     val database: AndroidXArtifactDao,
     application: Application
 ) : AndroidViewModel(application) {
-    private var viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
 
     var artifacts = database.getAllAndroidXArtifacts()
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
 
     // A disgraceful hack to force Livedata to refresh itself, could probably
     // do this more gracefully using a Repository.
     fun refreshLibraries() {
-        uiScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             var staleArtifact: AndroidXArtifact?
 
             // usually takes 1-2 seconds after LibraryRefreshWorker runs on a fresh install
             do {
                 delay(1000L)
-                staleArtifact = withContext(Dispatchers.IO) { database.getAllAndroidXArtifactsForWorker().firstOrNull() }
+                staleArtifact = database.getAllAndroidXArtifactsForWorker().firstOrNull()
             } while (staleArtifact == null)
 
             Timber.d("staleArtifact: $staleArtifact")
 
-            staleArtifact?.let {it1 ->
-                val freshArtifact = withContext(Dispatchers.IO) { database.get(it1.id) }
+            staleArtifact.let { it1 ->
+                val freshArtifact = database.get(it1.id)
                 freshArtifact?.let { it2 ->
-                    withContext(Dispatchers.IO) { database.update(it2) }
+                  database.update(it2)
                 }
             }
         }
     }
 
     private fun dropArtifactsTable() {
+
         database.clear()
     }
 
     fun normalRefresh(appContext: Context, notify: Boolean = false): Job {
-       return uiScope.launch {
-            withContext(Dispatchers.IO) {
+       return viewModelScope.launch(Dispatchers.IO) {
                 val list = fetchArtifacts()
                 val artifactsToInsert = mutableListOf<AndroidXArtifact>()
                 val artifactsToUpdate = mutableListOf<AndroidXArtifact>()
@@ -83,7 +76,7 @@ class LibrariesViewModel(
                                 (upKey == localKey)
                             }.apply {
                                 if (this != null){
-                                    if(this@LibrariesViewModel.artifactHasNewerVersion(this, upstreamArtifact)){
+                                    if(artifactHasNewerVersion(this, upstreamArtifact)){
                                         val notifyStr = "${this.packageName} ${upstreamArtifact.latestVersion}"
                                         newArtifactVersionsToNotifySet.add(notifyStr)
                                         Timber.d("$notifyStr was added to newArtifactVersionsToNotifySet!")
@@ -108,7 +101,6 @@ class LibrariesViewModel(
                 if(artifactsToUpdate.size > 0) { database.updateAll(artifactsToUpdate) }
 
                 if (notify && newArtifactVersionsToNotifySet.size > 0) {
-                    withContext(Dispatchers.Main) {
                         val notificationContentIntent = Intent(appContext, MainActivity::class.java).apply {
                             putExtra("menuItemId", R.id.navigation_updates)
                         }
@@ -131,9 +123,9 @@ class LibrariesViewModel(
                         NotificationManagerCompat.from(appContext).apply {
                             notify(NotificationHelper.UPDATES_NOTIFICATION_ID, notification)
                         }
-                    }
+
                 }
-            }
+
         }
     }
 
@@ -155,12 +147,10 @@ class LibrariesViewModel(
     }
 
     private fun hardRefresh() {
-        uiScope.launch {
-            withContext(Dispatchers.IO) {
-                val list = fetchArtifacts()
-                dropArtifactsTable()
-                database.insertAll(list)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            val list = fetchArtifacts()
+            dropArtifactsTable()
+            database.insertAll(list)
         }
     }
 
@@ -194,7 +184,6 @@ class LibrariesViewModel(
             }
 
         }
-
         return mList
     }
 
@@ -206,13 +195,9 @@ class LibrariesViewModel(
             it
         }?.toMutableList()
             ?.let {
-                uiScope.launch {
-                    withContext(Dispatchers.IO) {
-                        database.updateAll(it)
-                    }
+                viewModelScope.launch(Dispatchers.IO) {
+                    database.updateAll(it)
                 }
             }
-
-
     }
 }

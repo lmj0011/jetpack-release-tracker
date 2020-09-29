@@ -18,11 +18,13 @@ import kotlinx.android.synthetic.main.dialog_about.view.*
 import name.lmj0011.jetpackreleasetracker.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
@@ -34,8 +36,29 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        setupNavigationListener()
+    }
 
-        binding.fab.hide()
+    private fun setupNavigationListener(){
+        navController.addOnDestinationChangedListener { controller, destination, arguments ->
+            when(destination.id){
+                 R.id.navigation_libraries -> {
+                    hideFab()
+                }
+
+                R.id.navigation_updates -> {
+                    hideFab()
+                }
+
+                R.id.createProjectSyncFragment -> {
+                    hideFab()
+                }
+
+                R.id.editProjectSyncFragment -> {
+                    hideFab()
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -77,7 +100,6 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
-
 
     fun showToastMessage(message: String, duration: Int = Toast.LENGTH_SHORT) {
         val toast = Toast.makeText(this, message, duration)

@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'androidx.navigation.safeargs'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
@@ -62,8 +62,8 @@ android {
         jvmTarget = "1.8"
     }
 
-    dataBinding {
-        enabled = true
+    buildFeatures {
+        dataBinding = true
     }
 
     // Big Up! to cSn: https://stackoverflow.com/a/36626584/2445763
@@ -89,7 +89,6 @@ android {
     }
 
     preBuild.dependsOn(generateDependencyListFile)
-    /////
 }
 
 dependencies {

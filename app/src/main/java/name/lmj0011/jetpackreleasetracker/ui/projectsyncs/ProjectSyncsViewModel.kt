@@ -3,6 +3,7 @@ package name.lmj0011.jetpackreleasetracker.ui.projectsyncs
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.ResponseResultOf
@@ -12,45 +13,36 @@ import name.lmj0011.jetpackreleasetracker.database.ProjectSync
 import name.lmj0011.jetpackreleasetracker.database.ProjectSyncDao
 import timber.log.Timber
 import kotlin.Exception
+import kotlin.coroutines.CoroutineContext
 
 class ProjectSyncsViewModel(
     val database: ProjectSyncDao,
     application: Application
 ) : AndroidViewModel(application) {
-    private var viewModelJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main +  viewModelJob)
+
     val successMessages = MutableLiveData<String>()
     val errorMessages = MutableLiveData<String>()
-
-
     var projectSyncs = database.getAllProjectSyncs()
-
     val projectSync = MutableLiveData<ProjectSync?>()
-
     val projectDepsMap = MutableLiveData<MutableMap<String, MutableList<String>>>()
-
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
 
     // A disgraceful hack to force Livedata (ie. projectSyncs) to refresh itself, could probably
     // do this more gracefully using a Repository.
     fun refreshProjectSyncs() {
-        uiScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             var staleProjectSync: ProjectSync?
 
             do {
                 delay(1000L)
-                staleProjectSync = withContext(Dispatchers.IO) { database.getAllProjectSyncsForWorker().firstOrNull() }
+                staleProjectSync = database.getAllProjectSyncsForWorker().firstOrNull()
             } while (staleProjectSync == null)
 
             Timber.d("staleProjectSync: $staleProjectSync")
 
-            staleProjectSync?.let {it1 ->
-                val freshProjectSync = withContext(Dispatchers.IO) { database.get(it1.id) }
+            staleProjectSync.let { it1 ->
+                val freshProjectSync = database.get(it1.id)
                 freshProjectSync?.let { it2 ->
-                    withContext(Dispatchers.IO) { database.update(it2) }
+                    database.update(it2)
                 }
             }
         }
@@ -60,42 +52,33 @@ class ProjectSyncsViewModel(
         pName: String,
         pDepListUrl: String
     ) {
-        uiScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             val project = ProjectSync().apply {
                 name = pName
                 depsListUrl = pDepListUrl
             }
-
             synchronizeProject(project).join()
         }
 
     }
 
     fun updateProjectSync(project: ProjectSync) {
-        uiScope.launch {
+        viewModelScope.launch {
             synchronizeProject(project).join()
             successMessages.postValue("${project.name} Saved")
-
         }
-
     }
 
     fun deleteProject(project: ProjectSync) {
-        uiScope.launch {
-            val rowId = withContext(Dispatchers.IO){
-                this@ProjectSyncsViewModel.database.deleteByProjectSyncId(project.id)
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            database.deleteByProjectSyncId(project.id)
         }
     }
 
     fun setProjectSync(id: Long) {
-        uiScope.launch {
-            val project = withContext(Dispatchers.IO) {
-                database.get(id)
-            }
-
+        viewModelScope.launch {
+            val project = database.get(id)
             projectSync.postValue(project)
-
             project?.let {
                 synchronizeProject(project).join()
             }
@@ -107,7 +90,7 @@ class ProjectSyncsViewModel(
         project.outdatedCount = 0
         project.upToDateCount = 0
 
-        return uiScope.launch(Dispatchers.IO) {
+        return viewModelScope.launch(Dispatchers.IO) {
             lateinit var res: ResponseResultOf<ByteArray>
 
             try {
@@ -128,7 +111,8 @@ class ProjectSyncsViewModel(
                 data is ByteArray -> {
                     val str = String(data)
                     val strLines = str.lines()
-                    var resultProjectDepsMap: MutableMap<String, MutableList<String>> = mutableMapOf()
+                    val resultProjectDepsMap: MutableMap<String, MutableList<String>> =
+                        mutableMapOf()
 
                     strLines.forEach {
                         val lib = it.split(':')
@@ -137,14 +121,19 @@ class ProjectSyncsViewModel(
                             val artifactId = lib[1]
                             val versionId = lib[2]
 
-                            if(resultProjectDepsMap["$groupId"] == null) resultProjectDepsMap["$groupId"] = mutableListOf()
+                            if (resultProjectDepsMap[groupId] == null) resultProjectDepsMap[groupId] =
+                                mutableListOf()
 
                             artifacts.find { artifact ->
                                 artifact.name == "$groupId:$artifactId"
                             }?.let { artifact ->
 
-                                val str = if(project.stableVersionsOnly) {
-                                    if (Semver(artifact.latestStableVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
+                                val str = if (project.stableVersionsOnly) {
+                                    if (Semver(
+                                            artifact.latestStableVersion,
+                                            Semver.SemverType.LOOSE
+                                        ).isGreaterThan(versionId)
+                                    ) {
                                         project.outdatedCount = project.outdatedCount.plus(1)
                                         "$artifactId:$versionId -> ${artifact.latestStableVersion}\n"
                                     } else {
@@ -152,16 +141,20 @@ class ProjectSyncsViewModel(
                                         "$artifactId:$versionId\n"
                                     }
                                 } else {
-                                    if (Semver(artifact.latestVersion, Semver.SemverType.LOOSE).isGreaterThan(versionId)) {
+                                    if (Semver(
+                                            artifact.latestVersion,
+                                            Semver.SemverType.LOOSE
+                                        ).isGreaterThan(versionId)
+                                    ) {
                                         project.outdatedCount = project.outdatedCount.plus(1)
                                         "$artifactId:$versionId -> ${artifact.latestVersion}\n"
-                                    }else {
+                                    } else {
                                         project.upToDateCount = project.upToDateCount.plus(1)
                                         "$artifactId:$versionId\n"
                                     }
                                 }
 
-                                resultProjectDepsMap["$groupId"]?.add(str)
+                                resultProjectDepsMap[groupId]?.add(str)
                             }
 
 
@@ -169,22 +162,22 @@ class ProjectSyncsViewModel(
                     }
 
                     // remove non-androidx entries
-                    val keysToDelete = resultProjectDepsMap.keys.filter { str ->
-                        !str.contains("androidx.")
+                    val keysToDelete = resultProjectDepsMap.keys.filter { ktd ->
+                        !ktd.contains("androidx.")
                     }
 
-                    keysToDelete.forEach { str ->
-                        resultProjectDepsMap.remove(str)
+                    keysToDelete.forEach { element ->
+                        resultProjectDepsMap.remove(element)
                     }
 
                     projectDepsMap.postValue(resultProjectDepsMap)
                 }
                 error is FuelError -> {
-                    error.exception?.let { Timber.e(it) }
+                    error.exception.let { Timber.e(it) }
                 }
             }
 
-            this@ProjectSyncsViewModel.database.upsert(project)
+            database.upsert(project)
         }
     }
 
@@ -202,10 +195,8 @@ class ProjectSyncsViewModel(
             outdatedCount = 0
         }
 
-        uiScope.launch {
-            withContext(Dispatchers.IO) {
-                database.actualInsertAll(mutableListOf(proj1, proj2))
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            database.actualInsertAll(mutableListOf(proj1, proj2))
         }
     }
 }
