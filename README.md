@@ -15,6 +15,12 @@ Features include:
 ## Download
 Get the app from the [Google Play Store](https://play.google.com/store/apps/details?id=name.lmj0011.jetpackreleasetracker).
 
+## Building from source
+- clone this repo
+- create a `gradle.properties` file from `gradle.properties.example`
+- build app 
+
+
 ## Issues, Feature Requests and Contributing
 
 Please make sure to read the full guidelines.
