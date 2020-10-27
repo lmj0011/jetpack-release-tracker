@@ -18,6 +18,7 @@ Get the app from the [Google Play Store](https://play.google.com/store/apps/deta
 ## Building from source
 - clone this repo
 - create a `gradle.properties` file from `gradle.properties.example`
+- create and add a `google-service.json` file to this project [see issue](https://github.com/lmj0011/jetpack-release-tracker/issues/5)
 - build app 
 
 

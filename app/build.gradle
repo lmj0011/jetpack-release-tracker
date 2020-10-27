@@ -7,7 +7,7 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 30
     buildToolsVersion "29.0.3"
 
     // get the first 8 chars of the latest git commit, and use it as the version build name
@@ -16,7 +16,7 @@ android {
     defaultConfig {
         applicationId "name.lmj0011.jetpackreleasetracker"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 7
         versionName "1.2.2"
         vectorDrawables.useSupportLibrary = true
@@ -135,8 +135,9 @@ dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
 
     // add the Firebase SDK for Google Analytics
-    implementation 'com.google.firebase:firebase-analytics-ktx:17.5.0'
-    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
+    implementation platform('com.google.firebase:firebase-bom:26.0.0') // ref: https://firebase.google.com/docs/android/learn-more#bom
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics'
 
     // other 3rd party libs
     implementation 'com.jakewharton.timber:timber:4.7.1'

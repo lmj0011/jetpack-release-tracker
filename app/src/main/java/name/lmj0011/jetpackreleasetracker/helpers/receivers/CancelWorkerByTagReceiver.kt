@@ -9,7 +9,7 @@ import timber.log.Timber
 
 class CancelWorkerByTagReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val tagsArray = intent.getStringArrayExtra(context.getString(R.string.intent_extra_key_worker_tags))
+        val tagsArray = intent.getStringArrayExtra(context.getString(R.string.intent_extra_key_worker_tags))!!
 
         Timber.d("tagsArray [${tagsArray.joinToString()}]")
 

@@ -87,10 +87,10 @@ object AndroidXLibraryDataset {
             listOf("collection", "collection-ktx")
         ),
         AndroidXLibrary(
-            "https://dl.google.com/dl/android/maven2/androidx/compose/group-index.xml",
-            "https://developer.android.com/jetpack/androidx/releases/compose",
-            "androidx.compose",
-            listOf("compose-compiler", "compose-runtime")
+            "https://dl.google.com/dl/android/maven2/androidx/compose/ui/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/compose-ui",
+            "androidx.compose.ui",
+            listOf("ui", "ui-geometry", "ui-graphics", "ui-text", "ui-text-android", "ui-unit", "ui-util", "ui-viewbinding")
         ),
         AndroidXLibrary(
             "https://dl.google.com/dl/android/maven2/androidx/concurrent/group-index.xml",
@@ -432,21 +432,6 @@ object AndroidXLibraryDataset {
             "https://developer.android.com/jetpack/androidx/releases/tvprovider",
             "androidx.tvprovider",
             listOf("tvprovider")
-        ),
-        AndroidXLibrary(
-            "https://dl.google.com/dl/android/maven2/androidx/ui/group-index.xml",
-            "https://developer.android.com/jetpack/androidx/releases/ui",
-            "androidx.ui",
-            listOf(
-                "ui-android-text", "ui-animation", "ui-animation-core",
-                "ui-core", "ui-foundation", "ui-framework",
-                "ui-geometry", "ui-graphics", "ui-layout",
-                "ui-livedata", "ui-material", "ui-material-icons-core",
-                "ui-material-icons-extended", "ui-platform", "ui-rxjava2",
-                "ui-saved-instance-state", "ui-test", "ui-text",
-                "ui-text-android", "ui-text-core", "ui-tooling",
-                "ui-unit", "ui-util", "ui-vector"
-            )
         ),
         AndroidXLibrary(
             "https://dl.google.com/dl/android/maven2/androidx/vectordrawable/group-index.xml",
