@@ -5,14 +5,13 @@ import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.findNavController
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import androidx.navigation.NavController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.dialog_about.view.*
 import name.lmj0011.jetpackreleasetracker.databinding.ActivityMainBinding
@@ -26,23 +25,29 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
-        navController = findNavController(R.id.nav_host_fragment)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        navController = navHostFragment.navController
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(setOf(
-                R.id.navigation_libraries, R.id.navigation_updates, R.id.navigation_project_syncs ,R.id.navigation_notifications)
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.navigation_libraries,
+                R.id.navigation_updates,
+                R.id.navigation_project_syncs,
+                R.id.navigation_notifications
+            )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        binding.navView.setupWithNavController(navController)
         setupNavigationListener()
     }
 
-    private fun setupNavigationListener(){
-        navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            when(destination.id){
-                 R.id.navigation_libraries -> {
+    private fun setupNavigationListener() {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.navigation_libraries -> {
                     hideFab()
                 }
 
@@ -83,12 +88,13 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null)
 
-        if(!resources.getBoolean(R.bool.DEBUG_MODE)) {
-            v.versionTextView.text = "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)})"
+        val versionText = if (!resources.getBoolean(R.bool.DEBUG_MODE)) {
+            "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)})"
         } else {
-            v.versionTextView.text = "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)}) DEBUG"
+            "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)}) DEBUG"
         }
 
+        v.versionTextView.text = versionText
 
         return when (item.itemId) {
             R.id.action_main_about -> {
@@ -121,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun hideFab() {
+    private fun hideFab() {
         binding.fab.hide()
     }
 
