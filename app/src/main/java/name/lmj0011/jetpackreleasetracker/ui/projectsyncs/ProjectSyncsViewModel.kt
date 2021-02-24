@@ -8,12 +8,11 @@ import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelError
 import com.github.kittinunf.fuel.core.ResponseResultOf
 import com.vdurmont.semver4j.Semver
+import com.vdurmont.semver4j.SemverException
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.database.ProjectSync
 import name.lmj0011.jetpackreleasetracker.database.ProjectSyncDao
 import timber.log.Timber
-import kotlin.Exception
-import kotlin.coroutines.CoroutineContext
 
 class ProjectSyncsViewModel(
     val database: ProjectSyncDao,
@@ -63,7 +62,7 @@ class ProjectSyncsViewModel(
     }
 
     fun updateProjectSync(project: ProjectSync) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             synchronizeProject(project).join()
             successMessages.postValue("${project.name} Saved")
         }
@@ -76,7 +75,7 @@ class ProjectSyncsViewModel(
     }
 
     fun setProjectSync(id: Long) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val project = database.get(id)
             projectSync.postValue(project)
             project?.let {
@@ -128,33 +127,49 @@ class ProjectSyncsViewModel(
                                 artifact.name == "$groupId:$artifactId"
                             }?.let { artifact ->
 
-                                val str = if (project.stableVersionsOnly) {
-                                    if (Semver(
-                                            artifact.latestStableVersion,
-                                            Semver.SemverType.LOOSE
-                                        ).isGreaterThan(versionId)
-                                    ) {
-                                        project.outdatedCount = project.outdatedCount.plus(1)
-                                        "$artifactId:$versionId -> ${artifact.latestStableVersion}\n"
+                                try {
+                                    val str = if (project.stableVersionsOnly) {
+                                        if (Semver(
+                                                artifact.latestStableVersion,
+                                                Semver.SemverType.LOOSE
+                                            ).isGreaterThan(versionId)
+                                        ) {
+                                            project.outdatedCount = project.outdatedCount.plus(1)
+                                            "$artifactId:$versionId -> ${artifact.latestStableVersion}\n"
+                                        } else {
+                                            project.upToDateCount = project.upToDateCount.plus(1)
+                                            "$artifactId:$versionId\n"
+                                        }
                                     } else {
-                                        project.upToDateCount = project.upToDateCount.plus(1)
-                                        "$artifactId:$versionId\n"
+                                        if (Semver(
+                                                artifact.latestVersion,
+                                                Semver.SemverType.LOOSE
+                                            ).isGreaterThan(versionId)
+                                        ) {
+                                            project.outdatedCount = project.outdatedCount.plus(1)
+                                            "$artifactId:$versionId -> ${artifact.latestVersion}\n"
+                                        } else {
+                                            project.upToDateCount = project.upToDateCount.plus(1)
+                                            "$artifactId:$versionId\n"
+                                        }
                                     }
-                                } else {
-                                    if (Semver(
-                                            artifact.latestVersion,
-                                            Semver.SemverType.LOOSE
-                                        ).isGreaterThan(versionId)
-                                    ) {
-                                        project.outdatedCount = project.outdatedCount.plus(1)
-                                        "$artifactId:$versionId -> ${artifact.latestVersion}\n"
-                                    } else {
-                                        project.upToDateCount = project.upToDateCount.plus(1)
-                                        "$artifactId:$versionId\n"
+
+                                    resultProjectDepsMap[groupId]?.add(str)
+                                } catch(ex: SemverException) {
+                                    val errMsg = ex.message ?: ""
+
+                                    when {
+                                        errMsg.contains("Invalid version") -> {
+                                            resultProjectDepsMap[groupId]?.add("$artifactId:$versionId\n")
+                                        }
+                                        else -> {
+                                            resultProjectDepsMap[groupId]?.add( "$artifactId:$versionId (error: ${errMsg})\n")
+                                        }
                                     }
+
+                                    Timber.e(ex)
                                 }
 
-                                resultProjectDepsMap[groupId]?.add(str)
                             }
 
 
