@@ -179,7 +179,7 @@ class LibrariesViewModel(
                     }
                 }
             } catch(ex: Exception) {
-                Timber.d("Failed to fetch artifacts from ${it.groupIndexUrl}")
+                Timber.e("Failed to fetch artifacts from ${it.groupIndexUrl}")
                 Timber.e(ex)
             }
 

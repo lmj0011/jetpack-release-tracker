@@ -141,6 +141,12 @@ object AndroidXLibraryDataset {
             listOf("adapters", "baseLibrary", "compiler", "compilerCommon", "library", "viewbinding", "databinding-adapters", "databinding-common", "databinding-compiler", "databinding-compiler-common", "databinding-runtime")
         ),
         AndroidXLibrary(
+            "https://dl.google.com/dl/android/maven2/androidx/datastore/group-index.xml",
+            "https://developer.android.com/jetpack/androidx/releases/datastore",
+            "androidx.datastore",
+            listOf("datastore", "datastore-core", "datastore-preferences", "datastore-preferences-core", "datastore-preferences-rxjava2", "datastore-preferences-rxjava3", "datastore-rxjava2", "datastore-rxjava3")
+        ),
+        AndroidXLibrary(
             "https://dl.google.com/dl/android/maven2/androidx/documentfile/group-index.xml",
             "https://developer.android.com/jetpack/androidx/releases/documentfile",
             "androidx.documentfile",
