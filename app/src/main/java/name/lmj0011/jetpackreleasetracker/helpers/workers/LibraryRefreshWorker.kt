@@ -13,6 +13,7 @@ import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AndroidXArtifact
 import name.lmj0011.jetpackreleasetracker.database.AppDatabase
+import name.lmj0011.jetpackreleasetracker.helpers.GMavenXmlParser
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
 import name.lmj0011.jetpackreleasetracker.helpers.receivers.CancelWorkerByTagReceiver
 import name.lmj0011.jetpackreleasetracker.ui.libraries.LibrariesViewModel
@@ -60,8 +61,8 @@ class LibraryRefreshWorker (private val appContext: Context, parameters: WorkerP
         val job = async {
             showProgress(0, appContext.getString(R.string.notification_text_fetching_artifacts))
 
-            val localArtifacts = dataSource.getAllAndroidXArtifactsForWorker()
-            val upstreamArtifactsList = librariesViewModel.fetchArtifacts()
+            val localArtifacts = dataSource.getAllAndroidXArtifacts()
+            val upstreamArtifactsList = GMavenXmlParser().loadArtifacts()
 
             if (upstreamArtifactsList.isNotEmpty()) {
                 var progress = 0f

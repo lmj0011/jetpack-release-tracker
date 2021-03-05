@@ -7,5 +7,5 @@ data class AndroidXLibrary (
 
     var packageName: String,
 
-    var artifactNames: List<String>
+    var artifactNames: MutableList<String>
 )

@@ -19,7 +19,6 @@ import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
 import name.lmj0011.jetpackreleasetracker.database.AppDatabase
 import name.lmj0011.jetpackreleasetracker.databinding.FragmentLibrariesBinding
-import name.lmj0011.jetpackreleasetracker.helpers.AndroidXLibraryDataset
 import name.lmj0011.jetpackreleasetracker.helpers.adapters.AndroidXLibraryListAdapter
 import name.lmj0011.jetpackreleasetracker.helpers.factories.LibrariesViewModelFactory
 import name.lmj0011.jetpackreleasetracker.helpers.interfaces.SearchableRecyclerView
@@ -136,7 +135,7 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
     private fun setupObservers() {
         librariesViewModel.artifacts.observe(viewLifecycleOwner, Observer {
 
-            // if it's always empty then there's a problem with the network or library source
+            // if it's always empty, there's a problem with the network
             if (it.isEmpty()) {
                 enqueueNewLibraryRefreshWorkerRequest()
             }
@@ -186,21 +185,22 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
             requireContext().getString(R.string.pref_key_starred_filter),
             false
         )
-        var list = AndroidXLibraryDataset.data.toMutableList()
 
-        viewLifecycleOwner.lifecycleScope.launch {
+        lifecycleScope.launch(Dispatchers.IO) {
+            var list = librariesViewModel.getAndroidXLibraryDataset().toMutableList()
+
             if (hasStarredFilter) {
                 list = listAdapter.filterByStarred(requireContext(), list).toMutableList()
             }
 
             query?.let { str ->
-                list = withContext(Dispatchers.Default) {
-                    listAdapter.filterBySearchQuery(str, list)
-                }
+                list = listAdapter.filterBySearchQuery(str, list)
             }
 
-            listAdapter.submitList(list)
-            listAdapter.notifyDataSetChanged()
+            withContext(Dispatchers.Main) {
+                listAdapter.submitList(list)
+                listAdapter.notifyDataSetChanged()
+            }
         }
     }
 

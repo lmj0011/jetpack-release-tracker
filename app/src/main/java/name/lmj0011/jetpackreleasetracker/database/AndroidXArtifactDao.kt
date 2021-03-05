@@ -54,10 +54,10 @@ interface AndroidXArtifactDao: BaseDao {
     fun get(key: Long): AndroidXArtifact?
 
     @Query("SELECT * FROM artifacts_table ORDER BY id DESC")
-    fun getAllAndroidXArtifacts(): LiveData<MutableList<AndroidXArtifact>>
+    fun getAllAndroidXArtifactsObserverable(): LiveData<MutableList<AndroidXArtifact>>
 
     @Query("SELECT * FROM artifacts_table ORDER BY id DESC")
-    fun getAllAndroidXArtifactsForWorker(): MutableList<AndroidXArtifact>
+    fun getAllAndroidXArtifacts(): MutableList<AndroidXArtifact>
 
     @Query("DELETE from artifacts_table WHERE id = :key")
     fun deleteByAndroidXArtifactId(key: Long): Int
