@@ -25,7 +25,7 @@ android {
         minSdkVersion(19)
         targetSdkVersion(30)
         versionCode(getCommitCount().toInt())
-        versionName = "1.2.3"
+        versionName = "1.3"
 
         vectorDrawables {
             useSupportLibrary = true
@@ -54,6 +54,7 @@ android {
 
         named("debug") {
             isMinifyEnabled = false
+            isShrinkResources = false
             isDebuggable = true
             versionNameSuffix("+debug.${getGitSha().take(8)}")
             applicationIdSuffix(".debug")
