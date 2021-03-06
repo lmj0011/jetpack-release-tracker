@@ -83,11 +83,7 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null)
 
-        if(!resources.getBoolean(R.bool.DEBUG_MODE)) {
-            v.versionTextView.text = "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)})"
-        } else {
-            v.versionTextView.text = "v${BuildConfig.VERSION_NAME} (${resources.getString(R.string.app_build)}) DEBUG"
-        }
+        v.versionTextView.text = "version: ${BuildConfig.VERSION_NAME}"
 
 
         return when (item.itemId) {
