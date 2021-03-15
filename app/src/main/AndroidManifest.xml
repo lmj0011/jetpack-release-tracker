@@ -22,6 +22,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="name.lmj0011.jetpackreleasetracker.MainActivity"
+            android:configChanges="uiMode"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

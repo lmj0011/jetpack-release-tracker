@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_change_theme"
+        android:title="Change Theme"
+        android:orderInCategory="1000"
+        app:showAsAction="never"/>
     <item android:id="@+id/action_main_about"
         android:title="About"
-        android:orderInCategory="1000"
+        android:orderInCategory="1001"
         app:showAsAction="never"/>
 </menu>

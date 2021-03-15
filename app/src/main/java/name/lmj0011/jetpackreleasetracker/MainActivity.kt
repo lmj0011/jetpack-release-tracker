@@ -1,18 +1,22 @@
 package name.lmj0011.jetpackreleasetracker
 
 import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.navigation.NavController
+import androidx.preference.PreferenceManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.dialog_about.view.*
 import name.lmj0011.jetpackreleasetracker.databinding.ActivityMainBinding
@@ -20,12 +24,14 @@ import name.lmj0011.jetpackreleasetracker.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var sharedPreferences: SharedPreferences
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         navController = findNavController(R.id.nav_host_fragment)
@@ -87,6 +93,42 @@ class MainActivity : AppCompatActivity() {
 
 
         return when (item.itemId) {
+            R.id.action_change_theme -> {
+                val themeSelections = getThemeSelections()
+
+                MaterialAlertDialogBuilder(this)
+                    .setTitle("Change Theme")
+                    .setSingleChoiceItems(themeSelections.first, themeSelections.second) { dialog, which ->
+                        // Respond to item chosen
+                        when(which) {
+                            0 -> {
+                                sharedPreferences.edit().putInt(
+                                    getString(R.string.pref_key_mode_night),
+                                    AppCompatDelegate.MODE_NIGHT_NO
+                                ).apply()
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                            }
+                            1 -> {
+                                sharedPreferences.edit().putInt(
+                                    getString(R.string.pref_key_mode_night),
+                                    AppCompatDelegate.MODE_NIGHT_YES
+                                ).apply()
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                            }
+                            2 -> {
+                                sharedPreferences.edit().putInt(
+                                    getString(R.string.pref_key_mode_night),
+                                    AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                                ).apply()
+                                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+                            }
+                        }
+
+                        dialog.dismiss()
+                    }
+                    .show()
+                true
+            }
             R.id.action_main_about -> {
                 MaterialAlertDialogBuilder(this)
                     .setView(v)
@@ -95,6 +137,39 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        (application as Application).applyTheme()
+
+        recreate()
+    }
+
+    /**
+     * gets the App theme from preferences, following System theme is default
+     *
+     * returns a Pair
+     *  - first component is the array of choices
+     *  - second component is the choice from sharedPrefs
+     */
+    fun getThemeSelections(): Pair<Array<String>, Int> {
+        val modeNight = sharedPreferences.getInt(
+            getString(R.string.pref_key_mode_night),
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
+
+        val themeSelection = when(resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+            Configuration.UI_MODE_NIGHT_NO ->  {
+                if(modeNight != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) 0 else 2
+            }
+            Configuration.UI_MODE_NIGHT_YES -> {
+                if(modeNight != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) 1 else 2
+            }
+            else -> 2
+        }
+
+        return Pair(arrayOf("Light", "Dark", "System"), themeSelection)
     }
 
     fun showToastMessage(message: String, duration: Int = Toast.LENGTH_SHORT) {

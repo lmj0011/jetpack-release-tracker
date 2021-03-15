@@ -36,6 +36,7 @@
     <!-- Shared Preference Keys-->
     <string name="pref_key_starred_libraries">PREF_STARRED_LIBRARIES</string>
     <string name="pref_key_starred_filter">PREF_STARRED_FILTER</string>
+    <string name="pref_key_mode_night">PREF_MODE_NIGHT</string>
 
     <!-- Intent Extra Keys-->
     <string name="intent_extra_key_worker_tags">WORKER_TAGS</string>

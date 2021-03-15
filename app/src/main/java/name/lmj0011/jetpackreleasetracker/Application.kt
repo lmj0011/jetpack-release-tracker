@@ -1,6 +1,8 @@
 package name.lmj0011.jetpackreleasetracker
 
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceManager
 import androidx.work.*
 import name.lmj0011.jetpackreleasetracker.helpers.NotificationHelper
 import name.lmj0011.jetpackreleasetracker.helpers.workers.LibraryRefreshWorker
@@ -12,7 +14,23 @@ class Application: android.app.Application() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
         NotificationHelper.init(this)
+        applyTheme()
         enqueueWorkers()
+    }
+
+
+    /**
+     * Applies the App's Theme from sharedPrefs
+     */
+    fun applyTheme() {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        val modeNight = sharedPreferences.getInt(
+            getString(R.string.pref_key_mode_night),
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        )
+
+        AppCompatDelegate.setDefaultNightMode(modeNight)
     }
 
     private fun enqueueWorkers() {
