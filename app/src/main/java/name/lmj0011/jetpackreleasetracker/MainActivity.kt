@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
+import android.text.util.Linkify
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -90,6 +92,11 @@ class MainActivity : AppCompatActivity() {
         val v = LayoutInflater.from(this).inflate(R.layout.dialog_about, null)
 
         v.versionTextView.text = "version: ${BuildConfig.VERSION_NAME}"
+        Linkify.addLinks(v.gitHubRepoLinkTextView, Linkify.ALL)
+        v.gitHubRepoLinkTextView.movementMethod = LinkMovementMethod.getInstance()
+
+        Linkify.addLinks(v.gitHubChangelogLinkTextView, Linkify.ALL)
+        v.gitHubChangelogLinkTextView.movementMethod = LinkMovementMethod.getInstance()
 
 
         return when (item.itemId) {

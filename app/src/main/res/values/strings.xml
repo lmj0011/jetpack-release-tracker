@@ -46,6 +46,14 @@
     <string name="update_periodic_worker_tag">UPDATE_PERIODIC_WORKER_TAG</string>
     <string name="update_one_time_worker_tag">UPDATE_ONE_TIME_WORKER_TAG</string>
     <string name="project_sync_all_one_time_worker_tag">PROJECT_SYNC_ALL_ONE_TIME_WORKER_TAG</string>
-    <string name="github_repo_url">https://github.com/lmj0011/jetpack-release-tracker</string>
+
+    <string name="github_repo_url">
+        <a href="https://github.com/lmj0011/jetpack-release-tracker">Github</a>
+    </string>
+
+    <string name="github_repo_changelog_url">
+        <a href="https://github.com/lmj0011/jetpack-release-tracker/commits/master">changelog</a>
+    </string>
+
     <string name="key_project_sync_id_bundle_property">projectSyncId</string>
 </resources>
