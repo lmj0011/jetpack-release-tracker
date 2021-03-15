@@ -11,9 +11,11 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.android.synthetic.main.fragment_libraries.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
@@ -59,6 +61,10 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
         binding = FragmentLibrariesBinding.bind(view)
         binding.lifecycleOwner = this
         binding.homeViewModel = librariesViewModel
+        binding.fetchLibrariesButton.setOnClickListener {
+            enqueueNewLibraryRefreshWorkerRequest()
+            (requireActivity() as MainActivity).showToastMessage(requireContext().getString(R.string.toast_message_fetching_libraries))
+        }
     }
 
     private fun setupAdapter() {
@@ -137,7 +143,12 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
 
             // if it's always empty, there's a problem with the network
             if (it.isEmpty()) {
+                binding.swipeRefresh.visibility = View.GONE
+                binding.emptyListContainer.visibility = View.VISIBLE
                 enqueueNewLibraryRefreshWorkerRequest()
+            } else {
+                binding.swipeRefresh.visibility = View.VISIBLE
+                binding.emptyListContainer.visibility = View.GONE
             }
 
             listAdapter.submitLibArtifacts(it.toList())
@@ -164,20 +175,32 @@ class LibrariesFragment : Fragment(R.layout.fragment_libraries), SearchableRecyc
             .addTag(requireContext().getString(R.string.update_one_time_worker_tag))
             .build()
 
+        progress_indicator.visibility = View.VISIBLE
+
         WorkManager.getInstance(requireContext())
             .getWorkInfoByIdLiveData(libraryRefreshWorkerRequest.id)
             .observe(viewLifecycleOwner, Observer { workInfo ->
                 if (workInfo != null) {
                     val progress = workInfo.progress
                     val value = progress.getInt(ProjectSyncAllWorker.Progress, 0)
+                    progress_indicator.progress = value
+
+                    /**
+                     * start in indeterminate mode until ~20% complete,
+                     * to give an immediate visual que of work being done
+                     */
+                    if (value >= 20) progress_indicator.isIndeterminate = false
 
                     if (value >= 100) {
                         librariesViewModel.refreshLibraries()
+                        progress_indicator.visibility = View.GONE
+                        progress_indicator.isIndeterminate = true
                     }
                 }
             })
 
-        WorkManager.getInstance(requireContext()).enqueue(libraryRefreshWorkerRequest)
+        WorkManager.getInstance(requireContext())
+            .enqueueUniqueWork(getString(R.string.unique_work_name_fetch_libraries), ExistingWorkPolicy.KEEP, libraryRefreshWorkerRequest)
     }
 
     private fun refreshListAdapter(query: String? = null) {

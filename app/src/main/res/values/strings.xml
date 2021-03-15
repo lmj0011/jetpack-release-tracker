@@ -9,6 +9,8 @@
     <string name="list_header_artifact">Artifact</string>
     <string name="list_header_latest_stable">Stable</string>
     <string name="list_header_latest_release">Latest</string>
+    <string name="empty_libraries_text">AndroidX Libraries will show up here</string>
+    <string name="empty_libraries_fetch_btn">Fetch Libraries</string>
     <string name="no_updates_text">New AndroidX releases will show up here</string>
     <string name="empty_project_syncs_text">Monitor your project\'s Androidx dependencies</string>
     <string name="empty_project_syncs_learn_more_btn">Learn More</string>
@@ -23,6 +25,7 @@
     <string name="project_sync_no_dependencies">No androidx dependencies found</string>
 
     <string name="toast_message_updating_libraries">Updating Libraries</string>
+    <string name="toast_message_fetching_libraries">Fetching Libraries</string>
     <string name="toast_message_syncing_projects">Syncing Projects</string>
 
     <string name="notification_text_fetching_artifacts">fetching Artifacts...</string>
@@ -56,4 +59,6 @@
     </string>
 
     <string name="key_project_sync_id_bundle_property">projectSyncId</string>
+    <string name="unique_work_name_fetch_libraries">FETCH_LIBRARIES</string>
+    <string name="unique_work_name_sync_projects">SYNC_PROJECTS</string>
 </resources>

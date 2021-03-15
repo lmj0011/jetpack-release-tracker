@@ -4,16 +4,16 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.widget.SearchView
 import androidx.core.os.bundleOf
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import kotlinx.android.synthetic.main.fragment_libraries.*
 import kotlinx.coroutines.*
 import name.lmj0011.jetpackreleasetracker.MainActivity
 import name.lmj0011.jetpackreleasetracker.R
@@ -137,21 +137,32 @@ class ProjectSyncsFragment : Fragment(R.layout.fragment_project_syncs), Searchab
                 .addTag(requireContext().getString(R.string.project_sync_all_one_time_worker_tag))
                 .build()
 
+            progress_indicator.visibility = View.VISIBLE
+
             WorkManager.getInstance(requireActivity().application)
                 .getWorkInfoByIdLiveData(projectSyncAllWorkRequest.id)
                 .observe(viewLifecycleOwner, Observer { workInfo ->
                     if (workInfo != null) {
                         val progress = workInfo.progress
                         val value = progress.getInt(Progress, 0)
+                        progress_indicator.progress = value
+
+                        /**
+                         * start in indeterminate mode until ~20% complete,
+                         * to give an immediate visual que of work being done
+                         */
+                        if (value >= 20) progress_indicator.isIndeterminate = false
 
                         if (value >= 100) {
                             projectSyncsViewModel.refreshProjectSyncs()
+                            progress_indicator.visibility = View.GONE
+                            progress_indicator.isIndeterminate = true
                         }
                     }
                 })
 
-            WorkManager.getInstance(requireActivity().application)
-                .enqueue(projectSyncAllWorkRequest)
+            WorkManager.getInstance(requireContext())
+                .enqueueUniqueWork(getString(R.string.unique_work_name_sync_projects), ExistingWorkPolicy.KEEP, projectSyncAllWorkRequest)
 
             binding.swipeRefresh.isRefreshing = false
             (requireActivity() as MainActivity).showToastMessage(requireContext().getString(R.string.toast_message_syncing_projects))
