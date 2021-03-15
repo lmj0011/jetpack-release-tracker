@@ -45,7 +45,7 @@ class ProjectSyncAllWorker (private val appContext: Context, parameters: WorkerP
         val projectSyncs = dataSource.getAllProjectSyncsForWorker()
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationHelper.PROJECT_SYNC_ALL_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_sync_24)
+            .setSmallIcon(R.drawable.ic_notif_baseline_sync_24)
             .setContentTitle(appContext.getString(R.string.notification_text_syncing_all_projects))
             .setOnlyAlertOnce(true)
             .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
@@ -79,7 +79,7 @@ class ProjectSyncAllWorker (private val appContext: Context, parameters: WorkerP
 
     private fun showProgress(progress: Int, message: String) {
         val notification = NotificationCompat.Builder(applicationContext, NotificationHelper.PROJECT_SYNC_ALL_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_sync_24)
+            .setSmallIcon(R.drawable.ic_notif_baseline_sync_24)
             .setContentTitle(appContext.getString(R.string.notification_text_syncing_all_projects))
             .setContentText(message)
             .setProgress(100, progress, false)

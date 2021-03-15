@@ -44,7 +44,7 @@ class LibraryRefreshWorker (private val appContext: Context, parameters: WorkerP
         val librariesViewModel = LibrariesViewModel(dataSource, application)
 
         val foregroundNotification = NotificationCompat.Builder(applicationContext, NotificationHelper.UPDATES_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_sync_24)
+            .setSmallIcon(R.drawable.ic_notif_baseline_sync_24)
             .setContentTitle(appContext.getString(R.string.notification_text_checking_for_newer_lib_versions))
             .setOnlyAlertOnce(true)
             .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
@@ -115,7 +115,7 @@ class LibraryRefreshWorker (private val appContext: Context, parameters: WorkerP
 
             if (newArtifactVersionsToNotifySet.isNotEmpty()) {
                 val summaryNotification = NotificationCompat.Builder(appContext, NotificationHelper.NEW_LIBRARY_VERSIONS_CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_new_releases_outline_24dp)
+                    .setSmallIcon(R.drawable.ic_notif_new_releases_outline_24dp)
                     .setStyle(NotificationCompat.InboxStyle()
                         .setSummaryText(appContext.getString(R.string.notification_text_new_versions_available)))
                     .setOnlyAlertOnce(true)
@@ -142,7 +142,7 @@ class LibraryRefreshWorker (private val appContext: Context, parameters: WorkerP
                         val notification = NotificationCompat.Builder(appContext, NotificationHelper.NEW_LIBRARY_VERSIONS_CHANNEL_ID)
                             .setContentIntent(contentPendingIntent)
                             .setContentText(str)
-                            .setSmallIcon(R.drawable.ic_new_releases_outline_24dp)
+                            .setSmallIcon(R.drawable.ic_notif_new_releases_outline_24dp)
                             .setOnlyAlertOnce(true)
                             .setAutoCancel(true)
                             .setColor(ContextCompat.getColor(appContext, R.color.colorPrimary))
@@ -175,7 +175,7 @@ class LibraryRefreshWorker (private val appContext: Context, parameters: WorkerP
 
     private fun showProgress(progress: Int, message: String) {
         val notification = NotificationCompat.Builder(applicationContext, NotificationHelper.UPDATES_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_baseline_sync_24)
+            .setSmallIcon(R.drawable.ic_notif_baseline_sync_24)
             .setContentTitle(appContext.getString(R.string.notification_text_checking_for_newer_lib_versions))
             .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setProgress(100, progress, false)
